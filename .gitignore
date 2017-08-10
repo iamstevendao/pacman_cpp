@@ -31,3 +31,7 @@
 
 #log
 *.tlog
+bin/
+obj/
+Debug/
+Release/
