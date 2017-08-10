@@ -1,19 +1,22 @@
 #include "Character.h"
+
+Character::Character(int x, int y) : Element(x, y) {}
+
 int Character::getX(){
-	return x;
+	return Element::getX();
 }
 int Character::getY(){
-	return y;
+	return Element::getY();
 }
 void Character::goLeft(){
-	if(x > 0) x--;
+	if(_x > 0) _x--;
 }
 void Character::goRight(){
-	x++;
+	_x++;
 }
 void Character::goUp(){
-	if(y>0) y--;
+	if(_y>0) _y--;
 }
 void Character::goDown(){
-	y++;	
+	_y++;	
 }

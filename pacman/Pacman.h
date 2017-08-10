@@ -1,4 +1,12 @@
 #include "Character.h"
 
-class Pacman : public Character{
+#ifndef PACMAN_H
+#define PACMAN_H
+class Pacman : Character{
+private:
+	bool isOpen;
+public:
+	bool getIsOpen();
 };
+
+#endif

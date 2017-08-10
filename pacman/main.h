@@ -1,2 +1,2 @@
-#include "Ghost.h"
 #include "Pacman.h"
+#include "Element.h"

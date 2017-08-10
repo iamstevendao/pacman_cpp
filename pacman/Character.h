@@ -1,10 +1,12 @@
+#include "Element.h"
+#ifndef CHARACTER_H
+#define CHARACTER_H
+
 #define CHARACTER_WIDTH 100
 #define CHARACTER_HEIGHT 100
-class Character {
-private:
-	int x;
-	int y;
+class Character : public Element {
 public:
+	Character(int, int);
 	int getX();
 	int getY();
 	void goLeft();
@@ -12,3 +14,5 @@ public:
 	void goUp();
 	void goDown();
 };
+
+#endif
