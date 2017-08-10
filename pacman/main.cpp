@@ -25,7 +25,7 @@ bool isContained(vector<Character>, Character);
 vector<Element> maps;
 vector<Element> foods;
 vector<Character> ghosts;
-//Pacman pacman;
+Pacman pacman;
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
@@ -52,10 +52,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	}
 
 	return 0;
-}
-
-void drawPacman(sf::RenderWindow & win) {
-
 }
 
 bool isContained(vector<Element> list, Element ele) {
@@ -138,14 +134,40 @@ void generateGhost(){
 	}
 }
 void generatePacman(){
-
+	pacman = Pacman(1,1, COLOR_PACMAN);
 }
 
 void draw(sf::RenderWindow &win) {
 	drawMap(win);
 	drawFood(win);
 	drawGhost(win);
+	drawPacman(win);
 }
+
+void drawPacman(sf::RenderWindow &win) {
+	int x = pacman.getX() * WIDTH_ELEMENT;
+	int y = pacman.getY() * HEIGHT_ELEMENT;
+	//big circle
+	sf::CircleShape circle;
+	circle.setRadius(WIDTH_ELEMENT/2);
+	circle.setFillColor(pacman.getColor());
+	circle.setPosition(x, y);
+	win.draw(circle);
+	//eye 
+		circle.setRadius(WIDTH_ELEMENT / 10);
+		circle.setFillColor(Color::White);
+		circle.setPosition(x + WIDTH_ELEMENT*3/8, y + HEIGHT_ELEMENT /8);
+		win.draw(circle);
+	//rectangle
+	sf::ConvexShape convex;
+	convex.setPointCount(3);
+	convex.setPoint(0, sf::Vector2f(x + WIDTH_ELEMENT, y));
+	convex.setPoint(1, sf::Vector2f(x + WIDTH_ELEMENT / 2, y + WIDTH_ELEMENT /2));
+	convex.setPoint(2, sf::Vector2f(x + WIDTH_ELEMENT, y + WIDTH_ELEMENT));
+	convex.setFillColor(Color::Black);
+	win.draw(convex);
+}
+
 void drawFood(sf::RenderWindow &win) {
 	for(int i = 0; i < foods.size(); i++) {
 		sf::RectangleShape rect;
@@ -175,7 +197,7 @@ void drawGhost(sf::RenderWindow &win) {
 		circle.setFillColor(ghosts[i].getColor());
 		circle.setPosition(x, y);
 		win.draw(circle);
-		
+
 		//rectangle
 		sf::RectangleShape rect;
 		rect.setFillColor(ghosts[i].getColor());
@@ -187,7 +209,7 @@ void drawGhost(sf::RenderWindow &win) {
 		circle.setFillColor(Color::White);
 		circle.setPosition(x + WIDTH_ELEMENT/8, y + HEIGHT_ELEMENT *3/8);
 		win.draw(circle);
-	
+
 		circle.setPosition(x + WIDTH_ELEMENT * 5/8, y + HEIGHT_ELEMENT *3/8);
 		win.draw(circle);
 		//clear foot

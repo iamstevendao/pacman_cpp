@@ -6,6 +6,7 @@
 #define CHARACTER_HEIGHT 100
 class Character : public Element {
 public:
+	Character();
 	Character(int, int, Color);
 	int getX();
 	int getY();

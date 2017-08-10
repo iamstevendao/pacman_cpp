@@ -1,4 +1,5 @@
 #include "Element.h"
+Element::Element() {}
 Element::Element(int x,int y, Color color){
 	_x = x;
 	_y = y;

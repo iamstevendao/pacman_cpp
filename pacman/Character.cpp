@@ -1,5 +1,6 @@
 #include "Character.h"
 
+Character::Character() {}
 Character::Character(int x, int y, Color color) : Element(x, y, color) {}
 
 int Character::getX(){

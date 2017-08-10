@@ -11,6 +11,7 @@ protected:
 	int _height;
 	Color _color;
 public:
+	Element();
 	Element(int,int,Color);
 	int getX();
 	int getY();
