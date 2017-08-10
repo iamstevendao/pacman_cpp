@@ -1,2 +1,2 @@
-# pacman_cpp
-#Pacman game using C++ with SFML library#
+# Pacman game using C++ with SFML library
+
