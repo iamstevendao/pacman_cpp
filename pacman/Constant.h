@@ -1,3 +1,5 @@
+#include <SFML/Graphics.hpp>
+
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
@@ -8,9 +10,13 @@
 #define HEIGHT_WINDOW 760
 #define NUMBER_GHOST 8
 
+#define COLOR_MAP Color::Blue
+#define COLOR_FOOD Color::White
+#define COLOR_PACMAN Color::Red
+#define COLOR_GHOST Color::Yellow
+
 class Constant {
 public:
-	enum Color {red, green, blue};
 	enum GhostArea { x = 7, y = 8, w = 5, h = 3 };
 };
 

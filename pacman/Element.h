@@ -1,4 +1,5 @@
-#include "Constant.h"
+#include <SFML/Graphics.hpp>
+using namespace sf;
 
 #ifndef ELEMENT_H
 #define ELEMENT_H
@@ -8,14 +9,14 @@ protected:
 	int _y;
 	int _width;
 	int _height;
-	Constant::Color _color;
+	Color _color;
 public:
-	Element(int,int);
+	Element(int,int,Color);
 	int getX();
 	int getY();
 	int getWidth();
 	int getHeight();
-	Constant::Color getColor();
+	Color getColor();
 };
 
 #endif

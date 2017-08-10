@@ -111,13 +111,13 @@ void pushMultipleToMap(int x, int y) {
 	pushToMap(SIZE_GRID - x - 1, SIZE_GRID - y - 1);
 }
 void pushToMap(int x, int y) {
-	Element block = Element(x, y);
+	Element block = Element(x, y, COLOR_MAP);
 	maps.push_back(block);
 }
 void generateFood(){
 	for(int i = 0; i < SIZE_GRID; i++) {
 		for(int j = 0; j < SIZE_GRID; j++) {
-			Element ele = Element(i, j);
+			Element ele = Element(i, j, COLOR_FOOD);
 			if(!isContained(maps, ele)) {
 				foods.push_back(ele);
 			}
@@ -128,7 +128,7 @@ void generateGhost(){
 	for(int i = 0; i < 8; i++) {
 		int x = rand() % Constant::GhostArea::w + Constant::GhostArea::x;
 		int y = rand() % Constant::GhostArea::h + Constant::GhostArea::y;
-		Character ghost = Character(x, y);
+		Character ghost = Character(x, y, COLOR_GHOST);
 		if(!isContained(ghosts, ghost))
 			ghosts.push_back(ghost);
 		else 
@@ -149,7 +149,7 @@ void drawFood(sf::RenderWindow &win) {
 		sf::RectangleShape rect;
 		rect.setSize(sf::Vector2f(WIDTH_ELEMENT / 3, HEIGHT_ELEMENT / 3));
 		rect.setPosition(foods[i].getX() * WIDTH_ELEMENT + WIDTH_ELEMENT/3, foods[i].getY()* HEIGHT_ELEMENT + HEIGHT_ELEMENT/3);
-		rect.setFillColor(sf::Color::White);
+		rect.setFillColor(foods[i].getColor());
 		win.draw(rect);
 	}
 }
@@ -158,7 +158,7 @@ void drawMap(sf::RenderWindow &win) {
 		sf::RectangleShape rect;
 		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT));
 		rect.setPosition(maps[i].getX() * WIDTH_ELEMENT, maps[i].getY()* HEIGHT_ELEMENT);
-		rect.setFillColor(sf::Color::Blue);
+		rect.setFillColor(maps[i].getColor());
 		win.draw(rect);
 	}
 }
@@ -169,7 +169,7 @@ void drawGhost(sf::RenderWindow &win) {
 		int y = ghosts[i].getY() * HEIGHT_ELEMENT;
 		sf::CircleShape circle;
 		circle.setRadius(WIDTH_ELEMENT/2);
-		circle.setFillColor(sf::Color::Yellow);
+		circle.setFillColor(ghosts[i].getColor());
 		circle.setPosition(x, y);
 		win.draw(circle);
 	}

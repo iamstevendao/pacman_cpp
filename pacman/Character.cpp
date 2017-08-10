@@ -1,12 +1,15 @@
 #include "Character.h"
 
-Character::Character(int x, int y) : Element(x, y) {}
+Character::Character(int x, int y, Color color) : Element(x, y, color) {}
 
 int Character::getX(){
 	return Element::getX();
 }
 int Character::getY(){
 	return Element::getY();
+}
+Color Character::getColor(){
+	return Element::getColor();
 }
 void Character::goLeft(){
 	if(_x > 0) _x--;

@@ -1,7 +1,8 @@
 #include "Element.h"
-Element::Element(int x,int y){
+Element::Element(int x,int y, Color color){
 	_x = x;
 	_y = y;
+	_color = color;
 }
 int Element::getX(){
 	return _x;
@@ -9,6 +10,7 @@ int Element::getX(){
 int Element::getY(){
 	return _y;
 }
-Constant::Color Element::getColor(){
+
+Color Element::getColor(){
 	return _color;
 }
