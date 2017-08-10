@@ -128,7 +128,9 @@ void generateGhost(){
 	for(int i = 0; i < 8; i++) {
 		int x = rand() % Constant::GhostArea::w + Constant::GhostArea::x;
 		int y = rand() % Constant::GhostArea::h + Constant::GhostArea::y;
-		Character ghost = Character(x, y, COLOR_GHOST);
+		int color = rand() % NUMBER_GHOST_COLOR;
+
+		Character ghost = Character(x, y, Constant::GhostColors(color));
 		if(!isContained(ghosts, ghost))
 			ghosts.push_back(ghost);
 		else 
@@ -167,10 +169,39 @@ void drawGhost(sf::RenderWindow &win) {
 	for(int i = 0; i < ghosts.size(); i++) {
 		int x = ghosts[i].getX() * WIDTH_ELEMENT;
 		int y = ghosts[i].getY() * HEIGHT_ELEMENT;
+		//big circle
 		sf::CircleShape circle;
 		circle.setRadius(WIDTH_ELEMENT/2);
 		circle.setFillColor(ghosts[i].getColor());
 		circle.setPosition(x, y);
 		win.draw(circle);
+		
+		//rectangle
+		sf::RectangleShape rect;
+		rect.setFillColor(ghosts[i].getColor());
+		rect.setPosition(x, y + HEIGHT_ELEMENT / 2);
+		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 2));
+		win.draw(rect);
+		//eye 
+		circle.setRadius(WIDTH_ELEMENT / 8);
+		circle.setFillColor(Color::White);
+		circle.setPosition(x + WIDTH_ELEMENT/8, y + HEIGHT_ELEMENT *3/8);
+		win.draw(circle);
+	
+		circle.setPosition(x + WIDTH_ELEMENT * 5/8, y + HEIGHT_ELEMENT *3/8);
+		win.draw(circle);
+		//clear foot
+		rect.setFillColor(Color::Black);
+		rect.setPosition(x, y + HEIGHT_ELEMENT * 7/ 8);
+		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 8));
+		win.draw(rect);
+
+		//4 circle
+		circle.setFillColor(ghosts[i].getColor());
+		for(int j = -4; j <= 2; j +=2) {
+			circle.setRadius(WIDTH_ELEMENT/8);
+			circle.setPosition(x + WIDTH_ELEMENT / 2 + j * WIDTH_ELEMENT / 8, y + HEIGHT_ELEMENT * 3/4);
+			win.draw(circle);
+		}
 	}
 }

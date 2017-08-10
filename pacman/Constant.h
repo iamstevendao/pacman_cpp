@@ -9,6 +9,7 @@
 #define WIDTH_WINDOW 760
 #define HEIGHT_WINDOW 760
 #define NUMBER_GHOST 8
+#define NUMBER_GHOST_COLOR 5
 
 #define COLOR_MAP Color::Blue
 #define COLOR_FOOD Color::White
@@ -18,6 +19,10 @@
 class Constant {
 public:
 	enum GhostArea { x = 7, y = 8, w = 5, h = 3 };
+	static const Color GhostColors(int index) {
+		static const Color a[] = {Color::Cyan,Color::Blue,Color::Yellow, Color::Magenta, Color::Green};
+		return a[index];
+	} 
 };
 
 #endif
