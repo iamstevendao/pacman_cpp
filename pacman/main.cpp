@@ -197,6 +197,32 @@ void draw(sf::RenderWindow &win) {
 void drawPacman(sf::RenderWindow &win) {
 	float x = pacman.getX() * WIDTH_ELEMENT;
 	float y = pacman.getY() * HEIGHT_ELEMENT;
+	float x1 = x, x2 = x, y1 = y, y2 = y; //for the mouth
+	float eyex = x, eyey = y; //for the eye
+	switch(pacman.getDirection()) {
+	case Constant::Direction::left:
+		y2 += HEIGHT_ELEMENT;
+		eyex += WIDTH_ELEMENT * 3/8;
+		eyey += HEIGHT_ELEMENT / 8;
+		break;
+	case Constant::Direction::right:
+		x1 = x2 += WIDTH_ELEMENT;
+		y2 += WIDTH_ELEMENT;
+		eyex += WIDTH_ELEMENT * 3/8;
+		eyey += HEIGHT_ELEMENT / 8;
+		break;
+	case Constant::Direction::up:
+		x2 += WIDTH_ELEMENT;
+		eyex += WIDTH_ELEMENT /8;
+		eyey += HEIGHT_ELEMENT * 3 / 8;
+		break;
+	case Constant::Direction::down:
+		x2 += WIDTH_ELEMENT;
+		y1 = y2 += WIDTH_ELEMENT;
+		eyex += WIDTH_ELEMENT * 5/8;
+		eyey += HEIGHT_ELEMENT * 3/ 8;
+		break;
+	}
 
 	//big circle
 	sf::CircleShape circle;
@@ -204,17 +230,19 @@ void drawPacman(sf::RenderWindow &win) {
 	circle.setFillColor(pacman.getColor());
 	circle.setPosition(x, y);
 	win.draw(circle);
+
 	//eye 
 	circle.setRadius(WIDTH_ELEMENT / 10);
 	circle.setFillColor(Color::White);
-	circle.setPosition(x + WIDTH_ELEMENT*3/8, y + HEIGHT_ELEMENT /8);
+	circle.setPosition(eyex, eyey);
 	win.draw(circle);
+
 	//rectangle
 	sf::ConvexShape convex;
 	convex.setPointCount(3);
-	convex.setPoint(0, sf::Vector2f(x + WIDTH_ELEMENT, y));
-	convex.setPoint(1, sf::Vector2f(x + WIDTH_ELEMENT / 2, y + WIDTH_ELEMENT /2));
-	convex.setPoint(2, sf::Vector2f(x + WIDTH_ELEMENT, y + WIDTH_ELEMENT));
+	convex.setPoint(0, sf::Vector2f(x + WIDTH_ELEMENT/2, y + HEIGHT_ELEMENT /2));
+	convex.setPoint(1, sf::Vector2f(x1, y1));
+	convex.setPoint(2, sf::Vector2f(x2, y2));
 	convex.setFillColor(Color::Black);
 	win.draw(convex);
 }
