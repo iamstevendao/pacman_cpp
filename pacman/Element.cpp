@@ -11,7 +11,12 @@ float Element::getX(){
 float Element::getY(){
 	return _y;
 }
-
+void Element::setX(float x){
+	_x = x;
+}
+void Element::setY(float y) {
+	_y = y;
+}
 Color Element::getColor(){
 	return _color;
 }

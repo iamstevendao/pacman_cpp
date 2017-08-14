@@ -9,12 +9,13 @@
 class Character : public Element {
 private:
 	Constant::Direction _direction;
-	int round(float);
+	
 public:
 	Character();
 	Character(float, float, Color);
 	Constant::Direction getDirection();
 	void setDirection(Constant::Direction);
+	float round(float);
 	Color getColor();
 	void goLeft();
 	void goRight();

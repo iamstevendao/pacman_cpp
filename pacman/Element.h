@@ -13,6 +13,8 @@ protected:
 public:
 	Element();
 	Element(float,float,Color);
+	void setX(float);
+	void setY(float);
 	float getX();
 	float getY();
 	int getWidth();

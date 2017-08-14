@@ -29,7 +29,7 @@ bool isContained(vector<Character>, Character);
 bool isContained(vector<Constant::Direction>, Constant::Direction);
 bool isCrashed(float, float);
 Constant::Direction opositeOf(Constant::Direction);
-vector<Constant::Direction> whereCanGo(int,int);
+vector<Constant::Direction> whereCanGo(float,float);
 
 vector<Element> maps;
 vector<Element> foods;
@@ -48,8 +48,36 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			// window closed
+			switch (event.type)
+			{
+			case Event::Closed:
 				window.close();
+				break;
+			case Event::KeyPressed: {
+				switch(event.key.code) {
+				case Keyboard::Left:
+					pacman.setDirection(Constant::Direction::left);
+					pacman.setY(pacman.round(pacman.getY()));
+					break;
+				case Keyboard::Right:
+					pacman.setDirection(Constant::Direction::right);
+					pacman.setY(pacman.round(pacman.getY()));
+					break;
+				case Keyboard::Up:
+					pacman.setDirection(Constant::Direction::up);
+					pacman.setX(pacman.round(pacman.getX()));
+					break;
+				case Keyboard::Down:
+					pacman.setDirection(Constant::Direction::down);
+					pacman.setX(pacman.round(pacman.getX()));
+					break;
+				}
+									}
+									break;
+			default:
+				break;
+			}
 		}
 
 		window.clear();
@@ -58,7 +86,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		draw(window);
 		controlGame();
 		window.display();
-		Sleep(100);
+		Sleep(80);
 	}
 
 	return 0;
@@ -167,8 +195,9 @@ void draw(sf::RenderWindow &win) {
 }
 
 void drawPacman(sf::RenderWindow &win) {
-	int x = pacman.getX() * WIDTH_ELEMENT;
-	int y = pacman.getY() * HEIGHT_ELEMENT;
+	float x = pacman.getX() * WIDTH_ELEMENT;
+	float y = pacman.getY() * HEIGHT_ELEMENT;
+
 	//big circle
 	sf::CircleShape circle;
 	circle.setRadius(WIDTH_ELEMENT/2);
@@ -261,7 +290,8 @@ void controlGame(){
 void controlObject(Character &cha, bool isGhost) {
 	vector<Constant::Direction> directions = whereCanGo(cha.getX(), cha.getY());
 	if(isContained(directions, cha.getDirection())) {
-		directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
+		if(isContained(directions, opositeOf(cha.getDirection())))
+			directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
 	}
 
 	if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
@@ -292,18 +322,18 @@ void controlObject(Character &cha, bool isGhost) {
 	}
 }
 
-vector<Constant::Direction> whereCanGo(int x, int y) {
+vector<Constant::Direction> whereCanGo(float x, float y) {
 	vector<Constant::Direction> directions;
 	for(int i = 0; i < 4; i++) {
 		directions.push_back(static_cast<Constant::Direction>(i));
 	}
-	if(!isCrashed(x + 1, y))
+	if(isCrashed(x + 1, y))
 		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::right), directions.end());
-	if(!isCrashed(x - 1, y))
+	if(isCrashed(x - 1, y))
 		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::left), directions.end());
-	if(!isCrashed(x, y - 1))
+	if(isCrashed(x, y - 1))
 		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::up), directions.end());
-	if(!isCrashed(x, y + 1))
+	if(isCrashed(x, y + 1))
 		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::down), directions.end());
 	return directions;
 }
@@ -314,6 +344,7 @@ bool isCrashed(float x, float y) {
 			return true;
 		}
 	}
+	return false;
 }
 Constant::Direction opositeOf(Constant::Direction direction) {
 	switch(direction) {
