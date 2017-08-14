@@ -15,12 +15,21 @@ void draw(sf::RenderWindow &);
 void drawMap(sf::RenderWindow &);
 void drawFood(sf::RenderWindow &);
 void drawPacman(sf::RenderWindow &);
-void drawGhost(sf::RenderWindow &);
+void drawGhosts(sf::RenderWindow &);
+
+void controlGame();
+void controlObject(Character &, bool);
+void controlScore();
+
 
 void pushToMap(int,int); 
 void pushMultipleToMap(int,int); 
 bool isContained(vector<Element>, Element);
 bool isContained(vector<Character>, Character);
+bool isContained(vector<Constant::Direction>, Constant::Direction);
+bool isCrashed(float, float);
+Constant::Direction opositeOf(Constant::Direction);
+vector<Constant::Direction> whereCanGo(int,int);
 
 vector<Element> maps;
 vector<Element> foods;
@@ -47,13 +56,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		//   window.draw(shape);
 		//	window.draw(rectangle);
 		draw(window);
+		controlGame();
 		window.display();
 		Sleep(100);
 	}
 
 	return 0;
 }
-
+//Question: isContained to generic type
 bool isContained(vector<Element> list, Element ele) {
 	for(int i = 0; i < list.size(); i++) {
 		if(list[i].getX() == ele.getX() && list[i].getY() == ele.getY())
@@ -69,6 +79,17 @@ bool isContained(vector<Character> list, Character ele) {
 	}
 	return false;
 }
+
+bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
+	if(find(list.begin(), list.end(), ele) != list.end()) 
+		/* v contains x */
+		return true;
+	else 
+		/* v does not contain x */
+		return false;
+
+}
+
 void generate(){
 	generateMap();
 	generateFood();
@@ -135,12 +156,13 @@ void generateGhost(){
 }
 void generatePacman(){
 	pacman = Pacman(1,1, COLOR_PACMAN);
+	pacman.setDirection(Constant::Direction::right);
 }
 
 void draw(sf::RenderWindow &win) {
 	drawMap(win);
 	drawFood(win);
-	drawGhost(win);
+	drawGhosts(win);
 	drawPacman(win);
 }
 
@@ -154,10 +176,10 @@ void drawPacman(sf::RenderWindow &win) {
 	circle.setPosition(x, y);
 	win.draw(circle);
 	//eye 
-		circle.setRadius(WIDTH_ELEMENT / 10);
-		circle.setFillColor(Color::White);
-		circle.setPosition(x + WIDTH_ELEMENT*3/8, y + HEIGHT_ELEMENT /8);
-		win.draw(circle);
+	circle.setRadius(WIDTH_ELEMENT / 10);
+	circle.setFillColor(Color::White);
+	circle.setPosition(x + WIDTH_ELEMENT*3/8, y + HEIGHT_ELEMENT /8);
+	win.draw(circle);
 	//rectangle
 	sf::ConvexShape convex;
 	convex.setPointCount(3);
@@ -187,7 +209,7 @@ void drawMap(sf::RenderWindow &win) {
 	}
 }
 
-void drawGhost(sf::RenderWindow &win) {
+void drawGhosts(sf::RenderWindow &win) {
 	for(int i = 0; i < ghosts.size(); i++) {
 		int x = ghosts[i].getX() * WIDTH_ELEMENT;
 		int y = ghosts[i].getY() * HEIGHT_ELEMENT;
@@ -226,4 +248,85 @@ void drawGhost(sf::RenderWindow &win) {
 			win.draw(circle);
 		}
 	}
+}
+
+void controlGame(){
+	controlObject(pacman, false);
+	for(int i = 0; i < ghosts.size(); i++) {
+		controlObject(ghosts[i], true);
+	}
+	controlScore();
+}
+
+void controlObject(Character &cha, bool isGhost) {
+	vector<Constant::Direction> directions = whereCanGo(cha.getX(), cha.getY());
+	if(isContained(directions, cha.getDirection())) {
+		directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
+	}
+
+	if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
+		cha.setDirection(directions[rand() % directions.size()]);
+	}
+
+	switch(cha.getDirection()) {
+	case Constant::Direction::right:
+		if(isContained(directions, Constant::Direction::right)) {
+			cha.goRight();
+		}
+		break;
+	case Constant::Direction::left:
+		if(isContained(directions, Constant::Direction::left)) {
+			cha.goLeft();
+		}
+		break;
+	case Constant::Direction::up:
+		if(isContained(directions, Constant::Direction::up)) {
+			cha.goUp();
+		}
+		break;	
+	case Constant::Direction::down:
+		if(isContained(directions, Constant::Direction::down)) {
+			cha.goDown();
+		}
+		break;
+	}
+}
+
+vector<Constant::Direction> whereCanGo(int x, int y) {
+	vector<Constant::Direction> directions;
+	for(int i = 0; i < 4; i++) {
+		directions.push_back(static_cast<Constant::Direction>(i));
+	}
+	if(!isCrashed(x + 1, y))
+		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::right), directions.end());
+	if(!isCrashed(x - 1, y))
+		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::left), directions.end());
+	if(!isCrashed(x, y - 1))
+		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::up), directions.end());
+	if(!isCrashed(x, y + 1))
+		directions.erase(remove(directions.begin(), directions.end(), Constant::Direction::down), directions.end());
+	return directions;
+}
+
+bool isCrashed(float x, float y) {
+	for(int i = 0; i < maps.size(); i++) {
+		if(maps[i].getX() == x && maps[i].getY() == y) {
+			return true;
+		}
+	}
+}
+Constant::Direction opositeOf(Constant::Direction direction) {
+	switch(direction) {
+	case Constant::Direction::left:
+		return Constant::Direction::right;
+	case Constant::Direction::right:
+		return Constant::Direction::left;
+	case Constant::Direction::up:
+		return Constant::Direction::down;
+	case Constant::Direction::down:
+		return Constant::Direction::up;
+	}
+}
+void controlScore(){
+
 }

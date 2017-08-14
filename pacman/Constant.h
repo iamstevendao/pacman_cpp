@@ -22,7 +22,8 @@ public:
 	static const Color GhostColors(int index) {
 		static const Color a[] = {Color::Cyan,Color::Blue,Color::Yellow, Color::Magenta, Color::Green};
 		return a[index];
-	} 
+	}
+	enum Direction { left, right, up, down };
 };
 
 #endif

@@ -5,16 +5,16 @@ using namespace sf;
 #define ELEMENT_H
 class Element {
 protected:
-	int _x;
-	int _y;
+	float _x;
+	float _y;
 	int _width;
 	int _height;
 	Color _color;
 public:
 	Element();
-	Element(int,int,Color);
-	int getX();
-	int getY();
+	Element(float,float,Color);
+	float getX();
+	float getY();
 	int getWidth();
 	int getHeight();
 	Color getColor();

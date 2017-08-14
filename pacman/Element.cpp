@@ -1,14 +1,14 @@
 #include "Element.h"
 Element::Element() {}
-Element::Element(int x,int y, Color color){
+Element::Element(float x,float y, Color color){
 	_x = x;
 	_y = y;
 	_color = color;
 }
-int Element::getX(){
+float Element::getX(){
 	return _x;
 }
-int Element::getY(){
+float Element::getY(){
 	return _y;
 }
 
