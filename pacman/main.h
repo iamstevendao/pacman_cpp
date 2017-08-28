@@ -18,9 +18,8 @@ void generateMap();
 void generateCherries();
 
 //drawing
-void drawMenu(RenderWindow &);
-void drawMenu(RenderWindow &, int score);
-void draw(RenderWindow &);
+void drawMenu(RenderWindow &, int score, Font &);
+void draw(RenderWindow &, Font &);
 void drawMap(RenderWindow &);
 void drawFood(RenderWindow &);
 void drawPacman(RenderWindow &);
@@ -36,6 +35,8 @@ void eatCherry();
 void eatFood();
 
 //functionality
+void initialize();
+void reset();
 void pushToMap(int,int); 
 void pushMultipleToMap(int,int); 
 bool isContained(vector<Element>, Element);

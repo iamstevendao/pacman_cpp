@@ -7,12 +7,18 @@ vector<Element> foods;
 vector<Element> cherries;
 vector<Character> ghosts;
 Pacman pacman;
+int score;
+bool isMenu;
+int currentChoice;
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
-	RenderWindow window(VideoMode(760, 760), "Pacman");
+	RenderWindow window(VideoMode(WIDTH_WINDOW, HEIGHT_WINDOW), "Pacman");
+	initialize();
 	generate();
-
+	Font font;
+	font.loadFromFile("ARCADECLASSIC.TTF");
+	currentChoice = 1;
 	//Main Loop
 	while (window.isOpen())
 	{
@@ -38,10 +44,24 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				case Keyboard::Up:
 					pacman.setDirection(Constant::Direction::up);
 					pacman.setX(pacman.round(pacman.getX()));
+					if(isMenu && currentChoice == 2) {
+						currentChoice--;
+					}
 					break;
 				case Keyboard::Down:
 					pacman.setDirection(Constant::Direction::down);
 					pacman.setX(pacman.round(pacman.getX()));
+					if(isMenu && currentChoice == 1) {
+						currentChoice++;
+					}
+					break;
+				case Keyboard::Return:
+					if(isMenu) {
+						if(currentChoice == 1)
+							isMenu = false;
+						else 
+							return 0;
+					}
 					break;
 				}
 									}
@@ -52,8 +72,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		}
 
 		window.clear();
-		draw(window);
-		controlGame();
+		draw(window, font);
+		if(!isMenu)
+			controlGame();
 		window.display();
 		Sleep(80);
 	}
@@ -85,7 +106,11 @@ bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
 		return false;
 
 }
+void initialize() {
+	isMenu = true;
+	score = 0;
 
+}
 void generate(){
 	generateMap();
 	generateFood();
@@ -118,6 +143,7 @@ void generateMap() {
 	for(int i = 8; i < 11; i++)
 		pushToMap(i, 11);
 }
+
 void generateCherries(){
 	while(cherries.size() < NUMBER_CHERRY) {
 		int index = rand() % foods.size();
@@ -167,12 +193,59 @@ void generatePacman(){
 	pacman.setDirection(Constant::Direction::right);
 }
 
-void draw(RenderWindow &win) {
+void draw(RenderWindow &win, Font &font) {
 	drawMap(win);
 	drawFood(win);
 	drawCherries(win);
 	drawGhosts(win);
 	drawPacman(win);
+	if(isMenu) {
+		drawMenu(win, score, font);
+	}
+}
+
+void drawMenu(RenderWindow &win, int score, Font &font) {
+	RectangleShape rect;
+	rect.setFillColor(Color::Black);
+	rect.setPosition(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 4);
+	rect.setSize(Vector2f(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2));
+	win.draw(rect);
+
+	Text text;
+	text.setFont(font);
+	text.setString("PACMAN");
+	text.setCharacterSize(24);
+	text.setColor(Color::White);
+	text.setPosition(TEXT_PACMAN_X, TEXT_PACMAN_Y);
+	win.draw(text);
+
+	text.setString("PLAY");
+	text.setPosition(TEXT_PLAY_X, TEXT_PLAY_Y);
+	win.draw(text);
+
+	text.setString("EXIT");
+	text.setPosition(TEXT_EXIT_X, TEXT_EXIT_Y);
+	win.draw(text);
+	
+	ConvexShape convex;
+	convex.setPointCount(3);
+	convex.setFillColor(Color::White);
+
+	if(currentChoice == 1 ) {
+	convex.setPoint(0, Vector2f(TEXT_PLAY_X - 20, TEXT_PLAY_Y + 5));
+	convex.setPoint(1, Vector2f(TEXT_PLAY_X - 10, TEXT_PLAY_Y + 10));
+	convex.setPoint(2, Vector2f(TEXT_PLAY_X - 20, TEXT_PLAY_Y + 15));
+	} else {
+	convex.setPoint(0, Vector2f(TEXT_EXIT_X - 20, TEXT_EXIT_Y + 5));
+	convex.setPoint(1, Vector2f(TEXT_EXIT_X - 10, TEXT_EXIT_Y + 10));
+	convex.setPoint(2, Vector2f(TEXT_EXIT_X - 20, TEXT_EXIT_Y + 15));
+	}
+	win.draw(convex);
+	if(score != 0) {
+		text.setString("SCORE: ");
+		text.setPosition(WIDTH_WINDOW/4 + 100, HEIGHT_WINDOW/4 + 150);
+		win.draw(text);
+	}
 }
 
 void drawPacman(RenderWindow &win) {
@@ -409,6 +482,11 @@ void controlScore(){
 	eatFood();
 }
 
+void reset(){
+	isMenu = true;
+	generate();
+}
+
 void crashGhost(){
 	for(int i = 0; i < ghosts.size(); i++) {
 		if((ceil(ghosts[i].getX()) == ceil(pacman.getX()) && 
@@ -418,8 +496,9 @@ void crashGhost(){
 			){
 				if(pacman.getPower() > 0) {
 					ghosts.erase(ghosts.begin() + i);
+					score += 5;
 				} else {
-
+					reset();
 				}
 		}
 	}
@@ -430,6 +509,7 @@ void eatCherry(){
 			cherries[i].getY() == pacman.round(pacman.getY())) {
 				cherries.erase(cherries.begin() + i);
 				pacman.activatePower();
+				score += 5;
 				break;
 		}
 	}
@@ -439,6 +519,7 @@ void eatFood(){
 		if(foods[i].getX() == pacman.round(pacman.getX()) 
 			&& foods[i].getY() == pacman.round(pacman.getY())) {
 				foods.erase(foods.begin() + i);
+				score += 1;
 				break;
 		}
 	}
