@@ -1,35 +1,5 @@
 #include <SFML/Graphics.hpp>
 #include "main.h"
-#include <iostream>
-#include <Windows.h>
-
-using namespace std;
-
-void generate();
-void generateFood();
-void generateGhost();
-void generatePacman();
-void generateMap();
-
-void draw(sf::RenderWindow &);
-void drawMap(sf::RenderWindow &);
-void drawFood(sf::RenderWindow &);
-void drawPacman(sf::RenderWindow &);
-void drawGhosts(sf::RenderWindow &);
-
-void controlGame();
-void controlObject(Character &, bool);
-void controlScore();
-
-
-void pushToMap(int,int); 
-void pushMultipleToMap(int,int); 
-bool isContained(vector<Element>, Element);
-bool isContained(vector<Character>, Character);
-bool isContained(vector<Constant::Direction>, Constant::Direction);
-bool isCrashed(float, float);
-Constant::Direction opositeOf(Constant::Direction);
-vector<Constant::Direction> whereCanGo(float,float);
 
 vector<Element> maps;
 vector<Element> foods;
@@ -38,14 +8,11 @@ Pacman pacman;
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
-	sf::RenderWindow window(sf::VideoMode(760, 760), "SFML works!");
-	//sf::CircleShape shape(100.f);
-	//sf::RectangleShape rectangle(sf::Vector2f(120, 50));
-	// shape.setFillColor(sf::Color::Green);
+	RenderWindow window(VideoMode(760, 760), "Pacman");
 	generate();
 	while (window.isOpen())
 	{
-		sf::Event event;
+		Event event;
 		while (window.pollEvent(event))
 		{
 			// window closed
@@ -81,8 +48,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		}
 
 		window.clear();
-		//   window.draw(shape);
-		//	window.draw(rectangle);
 		draw(window);
 		controlGame();
 		window.display();
@@ -110,10 +75,8 @@ bool isContained(vector<Character> list, Character ele) {
 
 bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
 	if(find(list.begin(), list.end(), ele) != list.end()) 
-		/* v contains x */
 		return true;
-	else 
-		/* v does not contain x */
+	else
 		return false;
 
 }
@@ -187,14 +150,14 @@ void generatePacman(){
 	pacman.setDirection(Constant::Direction::right);
 }
 
-void draw(sf::RenderWindow &win) {
+void draw(RenderWindow &win) {
 	drawMap(win);
 	drawFood(win);
 	drawGhosts(win);
 	drawPacman(win);
 }
 
-void drawPacman(sf::RenderWindow &win) {
+void drawPacman(RenderWindow &win) {
 	float x = pacman.getX() * WIDTH_ELEMENT;
 	float y = pacman.getY() * HEIGHT_ELEMENT;
 	float x1 = x, x2 = x, y1 = y, y2 = y; //for the mouth
@@ -225,7 +188,7 @@ void drawPacman(sf::RenderWindow &win) {
 	}
 
 	//big circle
-	sf::CircleShape circle;
+	CircleShape circle;
 	circle.setRadius(WIDTH_ELEMENT/2);
 	circle.setFillColor(pacman.getColor());
 	circle.setPosition(x, y);
@@ -238,50 +201,50 @@ void drawPacman(sf::RenderWindow &win) {
 	win.draw(circle);
 
 	//rectangle
-	sf::ConvexShape convex;
+	ConvexShape convex;
 	convex.setPointCount(3);
-	convex.setPoint(0, sf::Vector2f(x + WIDTH_ELEMENT/2, y + HEIGHT_ELEMENT /2));
-	convex.setPoint(1, sf::Vector2f(x1, y1));
-	convex.setPoint(2, sf::Vector2f(x2, y2));
+	convex.setPoint(0, Vector2f(x + WIDTH_ELEMENT/2, y + HEIGHT_ELEMENT /2));
+	convex.setPoint(1, Vector2f(x1, y1));
+	convex.setPoint(2, Vector2f(x2, y2));
 	convex.setFillColor(Color::Black);
 	win.draw(convex);
 }
 
-void drawFood(sf::RenderWindow &win) {
+void drawFood(RenderWindow &win) {
 	for(int i = 0; i < foods.size(); i++) {
-		sf::RectangleShape rect;
-		rect.setSize(sf::Vector2f(WIDTH_ELEMENT / 3, HEIGHT_ELEMENT / 3));
+		RectangleShape rect;
+		rect.setSize(Vector2f(WIDTH_ELEMENT / 3, HEIGHT_ELEMENT / 3));
 		rect.setPosition(foods[i].getX() * WIDTH_ELEMENT + WIDTH_ELEMENT/3, foods[i].getY()* HEIGHT_ELEMENT + HEIGHT_ELEMENT/3);
 		rect.setFillColor(foods[i].getColor());
 		win.draw(rect);
 	}
 }
-void drawMap(sf::RenderWindow &win) {
+void drawMap(RenderWindow &win) {
 	for(int i = 0; i < maps.size(); i++) {
-		sf::RectangleShape rect;
-		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT));
+		RectangleShape rect;
+		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT));
 		rect.setPosition(maps[i].getX() * WIDTH_ELEMENT, maps[i].getY()* HEIGHT_ELEMENT);
 		rect.setFillColor(maps[i].getColor());
 		win.draw(rect);
 	}
 }
 
-void drawGhosts(sf::RenderWindow &win) {
+void drawGhosts(RenderWindow &win) {
 	for(int i = 0; i < ghosts.size(); i++) {
 		int x = ghosts[i].getX() * WIDTH_ELEMENT;
 		int y = ghosts[i].getY() * HEIGHT_ELEMENT;
 		//big circle
-		sf::CircleShape circle;
+		CircleShape circle;
 		circle.setRadius(WIDTH_ELEMENT/2);
 		circle.setFillColor(ghosts[i].getColor());
 		circle.setPosition(x, y);
 		win.draw(circle);
 
 		//rectangle
-		sf::RectangleShape rect;
+		RectangleShape rect;
 		rect.setFillColor(ghosts[i].getColor());
 		rect.setPosition(x, y + HEIGHT_ELEMENT / 2);
-		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 2));
+		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 2));
 		win.draw(rect);
 		//eye 
 		circle.setRadius(WIDTH_ELEMENT / 8);
@@ -294,7 +257,7 @@ void drawGhosts(sf::RenderWindow &win) {
 		//clear foot
 		rect.setFillColor(Color::Black);
 		rect.setPosition(x, y + HEIGHT_ELEMENT * 7/ 8);
-		rect.setSize(sf::Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 8));
+		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 8));
 		win.draw(rect);
 
 		//4 circle
