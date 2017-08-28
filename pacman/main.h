@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <Windows.h>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 using namespace sf;
@@ -26,6 +27,9 @@ void drawGhosts(RenderWindow &);
 void controlGame();
 void controlObject(Character &, bool);
 void controlScore();
+void crashGhost();
+void eatCherry();
+void eatFood();
 
 //functionality
 void pushToMap(int,int); 

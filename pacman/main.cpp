@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "main.h"
 
+//global elements
 vector<Element> maps;
 vector<Element> foods;
 vector<Character> ghosts;
@@ -10,6 +11,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 {
 	RenderWindow window(VideoMode(760, 760), "Pacman");
 	generate();
+
+	//Main Loop
 	while (window.isOpen())
 	{
 		Event event;
@@ -56,6 +59,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	return 0;
 }
+
 //Question: isContained to generic type
 bool isContained(vector<Element> list, Element ele) {
 	for(int i = 0; i < list.size(); i++) {
@@ -112,6 +116,7 @@ void generateMap() {
 	for(int i = 8; i < 11; i++)
 		pushToMap(i, 11);
 }
+
 void pushMultipleToMap(int x, int y) {
 	pushToMap(x, y);
 	pushToMap(SIZE_GRID - x - 1, y);
@@ -133,7 +138,7 @@ void generateFood(){
 	}
 }
 void generateGhost(){
-	for(int i = 0; i < 8; i++) {
+	for(int i = 0; i < NUMBER_GHOST; i++) {
 		int x = rand() % Constant::GhostArea::w + Constant::GhostArea::x;
 		int y = rand() % Constant::GhostArea::h + Constant::GhostArea::y;
 		int color = rand() % NUMBER_GHOST_COLOR;
@@ -350,5 +355,23 @@ Constant::Direction opositeOf(Constant::Direction direction) {
 	}
 }
 void controlScore(){
+	crashGhost();
+	eatCherry();
+	eatFood();
+}
 
+void crashGhost(){
+	
+}
+void eatCherry(){
+	
+}
+void eatFood(){
+	for(int i = 0; i < foods.size(); i++) {
+		if(foods[i].getX() == pacman.round(pacman.getX()) 
+			&& foods[i].getY() == pacman.round(pacman.getY())) {
+			foods.erase(foods.begin() + i);
+			break;
+		}
+	}
 }
