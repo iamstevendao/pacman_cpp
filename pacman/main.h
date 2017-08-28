@@ -15,13 +15,17 @@ void generateFood();
 void generateGhost();
 void generatePacman();
 void generateMap();
+void generateCherries();
 
 //drawing
+void drawMenu(RenderWindow &);
+void drawMenu(RenderWindow &, int score);
 void draw(RenderWindow &);
 void drawMap(RenderWindow &);
 void drawFood(RenderWindow &);
 void drawPacman(RenderWindow &);
 void drawGhosts(RenderWindow &);
+void drawCherries(RenderWindow &);
 
 //control game
 void controlGame();

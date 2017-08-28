@@ -10,11 +10,17 @@
 #define HEIGHT_WINDOW 760
 #define NUMBER_GHOST 8
 #define NUMBER_GHOST_COLOR 5
+#define NUMBER_INTERVAL 80
+#define NUMBER_POWER 50
+#define NUMBER_CHERRY 5
 
 #define COLOR_MAP Color::Blue
 #define COLOR_FOOD Color::White
 #define COLOR_PACMAN Color::Red
+#define COLOR_POWER Color::Yellow
 #define COLOR_GHOST Color::Yellow
+#define COLOR_CHERRY Color::Red
+#define COLOR_CHERRY_BRANCH Color::Green
 
 class Constant {
 public:

@@ -4,6 +4,7 @@
 //global elements
 vector<Element> maps;
 vector<Element> foods;
+vector<Element> cherries;
 vector<Character> ghosts;
 Pacman pacman;
 
@@ -90,6 +91,7 @@ void generate(){
 	generateFood();
 	generateGhost();
 	generatePacman();
+	generateCherries();
 }
 
 void generateMap() {
@@ -115,6 +117,16 @@ void generateMap() {
 	pushToMap(SIZE_GRID - 6 - 1, 9);
 	for(int i = 8; i < 11; i++)
 		pushToMap(i, 11);
+}
+void generateCherries(){
+	while(cherries.size() < NUMBER_CHERRY) {
+		int index = rand() % foods.size();
+		Element ele(foods[index].getX(), foods[index].getY(), Color::Red);
+		if(!isContained(cherries, ele)) {
+			cherries.push_back(ele);
+			foods.erase(foods.begin() + index);
+		}
+	}
 }
 
 void pushMultipleToMap(int x, int y) {
@@ -158,6 +170,7 @@ void generatePacman(){
 void draw(RenderWindow &win) {
 	drawMap(win);
 	drawFood(win);
+	drawCherries(win);
 	drawGhosts(win);
 	drawPacman(win);
 }
@@ -195,7 +208,10 @@ void drawPacman(RenderWindow &win) {
 	//big circle
 	CircleShape circle;
 	circle.setRadius(WIDTH_ELEMENT/2);
-	circle.setFillColor(pacman.getColor());
+	if(pacman.getPower() <= 0)
+		circle.setFillColor(pacman.getColor());
+	else
+		circle.setFillColor(COLOR_POWER);
 	circle.setPosition(x, y);
 	win.draw(circle);
 
@@ -212,7 +228,38 @@ void drawPacman(RenderWindow &win) {
 	convex.setPoint(1, Vector2f(x1, y1));
 	convex.setPoint(2, Vector2f(x2, y2));
 	convex.setFillColor(Color::Black);
-	win.draw(convex);
+
+	if(pacman.switchOpen())
+		win.draw(convex);
+}
+
+void drawCherries(RenderWindow &win) {
+	for(int i = 0; i < cherries.size(); i++) {
+		int x = cherries[i].getX() * WIDTH_ELEMENT;
+		int y = cherries[i].getY() * HEIGHT_ELEMENT;
+
+		//first circle
+		CircleShape circle;
+		circle.setRadius(WIDTH_ELEMENT/4);
+		circle.setFillColor(COLOR_CHERRY);
+		circle.setPosition(x, y + HEIGHT_ELEMENT / 4);
+		win.draw(circle);
+
+		//second circle
+		circle.setPosition(x + WIDTH_ELEMENT / 2, y + HEIGHT_ELEMENT / 2);
+		win.draw(circle);
+
+		//branches
+		RectangleShape rect;
+		rect.setFillColor(COLOR_CHERRY_BRANCH);
+		rect.setPosition(x + WIDTH_ELEMENT / 4, y + HEIGHT_ELEMENT * 1 / 8);
+		rect.setSize(Vector2f(WIDTH_ELEMENT * 3 / 4, HEIGHT_ELEMENT / 8));
+		win.draw(rect);
+
+		rect.setPosition(x + WIDTH_ELEMENT * 3 / 4, y);
+		rect.setSize(Vector2f(WIDTH_ELEMENT / 8, HEIGHT_ELEMENT /2));
+		win.draw(rect);
+	}
 }
 
 void drawFood(RenderWindow &win) {
@@ -251,6 +298,7 @@ void drawGhosts(RenderWindow &win) {
 		rect.setPosition(x, y + HEIGHT_ELEMENT / 2);
 		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 2));
 		win.draw(rect);
+
 		//eye 
 		circle.setRadius(WIDTH_ELEMENT / 8);
 		circle.setFillColor(Color::White);
@@ -293,7 +341,8 @@ void controlObject(Character &cha, bool isGhost) {
 	if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
 		cha.setDirection(directions[rand() % directions.size()]);
 	}
-
+	if(!isGhost)
+		pacman.reducePower();
 	switch(cha.getDirection()) {
 	case Constant::Direction::right:
 		if(isContained(directions, Constant::Direction::right)) {
@@ -361,17 +410,36 @@ void controlScore(){
 }
 
 void crashGhost(){
-	
+	for(int i = 0; i < ghosts.size(); i++) {
+		if((ceil(ghosts[i].getX()) == ceil(pacman.getX()) && 
+			ceil(ghosts[i].getY()) == ceil(pacman.getY())) || 
+			(floor(ghosts[i].getX()) == floor(pacman.getX()) && 
+			floor(ghosts[i].getY()) == floor(pacman.getY()))
+			){
+				if(pacman.getPower() > 0) {
+					ghosts.erase(ghosts.begin() + i);
+				} else {
+
+				}
+		}
+	}
 }
 void eatCherry(){
-	
+	for(int i = 0; i < cherries.size(); i++) {
+		if(cherries[i].getX() == pacman.round(pacman.getX()) &&
+			cherries[i].getY() == pacman.round(pacman.getY())) {
+				cherries.erase(cherries.begin() + i);
+				pacman.activatePower();
+				break;
+		}
+	}
 }
 void eatFood(){
 	for(int i = 0; i < foods.size(); i++) {
 		if(foods[i].getX() == pacman.round(pacman.getX()) 
 			&& foods[i].getY() == pacman.round(pacman.getY())) {
-			foods.erase(foods.begin() + i);
-			break;
+				foods.erase(foods.begin() + i);
+				break;
 		}
 	}
 }

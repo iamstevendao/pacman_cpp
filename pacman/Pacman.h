@@ -4,18 +4,15 @@
 #define PACMAN_H
 class Pacman : public Character{
 private:
-	bool isOpen;
+	bool _isOpen;
+	int _power;
 public:
 	Pacman();
 	Pacman(int, int, Color);
-	bool getIsOpen();
-	/*int getX();
-	int getY();
-	Color getColor();
-	void goLeft();
-	void goRight();
-	void goUp();
-	void goDown();*/
+	bool switchOpen();
+	int getPower();
+	void activatePower();
+	void reducePower();
 };
 
 #endif

@@ -1,29 +1,19 @@
 #include "Pacman.h"
 Pacman::Pacman(){}
-Pacman::Pacman(int x, int y, Color color): Character(x,y,color){}
-//
-//int Pacman::getX(){
-//	return Character::getX();
-//}
-//int Pacman::getY(){
-//	return Character::getY();
-//}
-//Color Pacman::getColor(){
-//	return Character::getColor();
-//}
-//
-//bool Pacman::getIsOpen(){
-//	return isOpen;
-//}
-//void Pacman::goLeft(){
-//	Character::goLeft();
-//}
-//void Pacman::goRight(){
-//	Character::goRight();
-//}
-//void Pacman::goUp(){
-//	Character::goUp();
-//}
-//void Pacman::goDown(){
-//	Character::goDown();
-//}
+Pacman::Pacman(int x, int y, Color color): Character(x,y,color){
+	_isOpen = true;
+	_power = 0;
+}
+bool Pacman::switchOpen(){
+	_isOpen = !_isOpen;
+	return _isOpen;
+}
+int Pacman::getPower(){
+	return _power;
+}
+void Pacman::activatePower() {
+	_power = NUMBER_INTERVAL * NUMBER_POWER;
+}
+void Pacman::reducePower(){
+	_power -= NUMBER_INTERVAL;
+}
