@@ -9,6 +9,12 @@
 using namespace std;
 using namespace sf;
 
+//setup game
+void showMenu();
+void clearVectors();
+void initialize();
+void reset();
+
 //generate elements of the game
 void generate();
 void generateFood();
@@ -18,10 +24,10 @@ void generateMap();
 void generateCherries();
 
 //drawing
-void drawMenu(RenderWindow &, int score, Font &);
+void drawMenu(RenderWindow &, int, Font &);
 void draw(RenderWindow &, Font &);
-void drawMap(RenderWindow &);
-void drawFood(RenderWindow &);
+void drawMaps(RenderWindow &);
+void drawFoods(RenderWindow &);
 void drawPacman(RenderWindow &);
 void drawGhosts(RenderWindow &);
 void drawCherries(RenderWindow &);
@@ -35,16 +41,12 @@ void eatCherry();
 void eatFood();
 
 //functionality
-void showMenu();
-void clearVectors();
-void initialize();
-void reset();
 void pushToMap(int,int); 
 void pushMultipleToMap(int,int); 
 bool isContained(vector<Element>, Element);
 bool isContained(vector<Character>, Character);
 bool isContained(vector<Constant::Direction>, Constant::Direction);
-bool isCrashed(float, float);
-Constant::Direction opositeOf(Constant::Direction);
-vector<Constant::Direction> whereCanGo(float,float);
+bool isCrashed(float, float); //check if a character is gonna hit the map
+Constant::Direction opositeOf(Constant::Direction); //return the oposite direction
+vector<Constant::Direction> whereCanGo(float,float); //check all the directions that a ghost can go into
 

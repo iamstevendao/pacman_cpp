@@ -3,16 +3,23 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
+#pragma region Size
 #define WIDTH_ELEMENT 40
 #define HEIGHT_ELEMENT 40
 #define SIZE_GRID 19
 #define WIDTH_WINDOW 760
 #define HEIGHT_WINDOW 760
+#pragma endregion
+
+#pragma region Number
 #define NUMBER_GHOST 8
 #define NUMBER_GHOST_COLOR 5
 #define NUMBER_INTERVAL 80
 #define NUMBER_POWER 50
 #define NUMBER_CHERRY 5
+#pragma endregion
+
+#pragma region Position Text
 #define TEXT_PACMAN_X WIDTH_WINDOW/4 + 120
 #define TEXT_PACMAN_Y HEIGHT_WINDOW/4 + 30
 #define TEXT_SCORE_X TEXT_PACMAN_X - 10
@@ -23,14 +30,18 @@
 #define TEXT_EXIT_Y TEXT_PACMAN_Y + 180
 #define TEXT_CREDIT_X WIDTH_WINDOW/4 + 50
 #define TEXT_CREDIT_Y TEXT_PACMAN_Y + 270
+#pragma endregion
 
+#pragma region Color
 #define COLOR_BG Color::Black
 #define COLOR_MAP Color::Blue
 #define COLOR_FOOD Color::White
 #define COLOR_PACMAN Color::Red
 #define COLOR_CHERRY Color::Red
 #define COLOR_CHERRY_BRANCH Color::Green
+#pragma endregion
 
+#pragma region Enum
 class Constant {
 public:
 	enum GhostArea { x = 7, y = 8, w = 5, h = 3 };
@@ -40,5 +51,6 @@ public:
 	}
 	enum Direction { left, right, up, down };
 };
+#pragma endregion
 
 #endif

@@ -2,7 +2,7 @@
 #include "main.h"
 #include <sstream>
 
-//global elements
+#pragma region Global Variables
 vector<Element> maps;
 vector<Element> foods;
 vector<Element> cherries;
@@ -12,26 +12,35 @@ int score;
 bool isMenu;
 int currentChoice;
 
+#pragma endregion
+
+#pragma region Main
+
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
 	RenderWindow window(VideoMode(WIDTH_WINDOW, HEIGHT_WINDOW), "Pacman");
-	showMenu();
-	generate();
 	Font font;
 	font.loadFromFile("ARCADECLASSIC.TTF");
-	currentChoice = 1;
+
+	showMenu();
+	generate();
+
 	//Main Loop
 	while (window.isOpen())
 	{
 		Event event;
+		//check events during game
 		while (window.pollEvent(event))
 		{
-			// window closed
 			switch (event.type)
 			{
+
+				// window closed
 			case Event::Closed:
 				window.close();
 				break;
+
+				//key pressed event
 			case Event::KeyPressed: {
 				switch(event.key.code) {
 				case Keyboard::Left:
@@ -77,51 +86,53 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				break;
 			}
 		}
-
+		//redraw window
 		window.clear();
 		draw(window, font);
+
+		//run controller
 		if(!isMenu)
 			controlGame();
 		window.display();
+
+		//stop frame
 		Sleep(NUMBER_INTERVAL);
 	}
 
 	return 0;
 }
 
-//Question: isContained to generic type
-bool isContained(vector<Element> list, Element ele) {
-	for(int i = 0; i < list.size(); i++) {
-		if(list[i].getX() == ele.getX() && list[i].getY() == ele.getY())
-			return true;
-	}
-	return false;
-}
+#pragma endregion
 
-bool isContained(vector<Character> list, Character ele) {
-	for(int i = 0; i < list.size(); i++) {
-		if(list[i].getX() == ele.getX() && list[i].getY() == ele.getY())
-			return true;
-	}
-	return false;
-}
+#pragma region Game Setup
 
-bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
-	if(find(list.begin(), list.end(), ele) != list.end()) 
-		return true;
-	else
-		return false;
-
-}
 void initialize() {
 	isMenu = false;
 	score = 0;
 	srand(time(NULL)); 
 }
+
 void showMenu() {
+	currentChoice = 1;
 	isMenu = true;
 }
 
+void reset(){
+	showMenu();
+	clearVectors();
+	generate();
+}
+
+void clearVectors() {
+	maps.clear();
+	foods.clear();
+	cherries.clear();
+	ghosts.clear();
+}
+
+#pragma endregion
+
+#pragma region Generate Game
 void generate(){
 	generateMap();
 	generateFood();
@@ -166,16 +177,6 @@ void generateCherries(){
 	}
 }
 
-void pushMultipleToMap(int x, int y) {
-	pushToMap(x, y);
-	pushToMap(SIZE_GRID - x - 1, y);
-	pushToMap(x, SIZE_GRID - y - 1);
-	pushToMap(SIZE_GRID - x - 1, SIZE_GRID - y - 1);
-}
-void pushToMap(int x, int y) {
-	Element block = Element(x, y, COLOR_MAP);
-	maps.push_back(block);
-}
 void generateFood(){
 	for(int i = 0; i < SIZE_GRID; i++) {
 		for(int j = 0; j < SIZE_GRID; j++) {
@@ -186,6 +187,7 @@ void generateFood(){
 		}
 	}
 }
+
 void generateGhost(){
 	for(int i = 0; i < NUMBER_GHOST; i++) {
 		int x = rand() % Constant::GhostArea::w + Constant::GhostArea::x;
@@ -203,10 +205,12 @@ void generatePacman(){
 	pacman = Pacman(1,1, COLOR_PACMAN);
 	pacman.setDirection(Constant::Direction::right);
 }
+#pragma endregion 
 
+#pragma region Draw Game
 void draw(RenderWindow &win, Font &font) {
-	drawMap(win);
-	drawFood(win);
+	drawMaps(win);
+	drawFoods(win);
 	drawCherries(win);
 	drawGhosts(win);
 	drawPacman(win);
@@ -295,7 +299,7 @@ void drawPacman(RenderWindow &win) {
 		break;
 	}
 
-	//big circle
+	//body
 	CircleShape circle;
 	circle.setRadius(WIDTH_ELEMENT/2);
 	circle.setFillColor(pacman.getColor());
@@ -308,7 +312,7 @@ void drawPacman(RenderWindow &win) {
 	circle.setPosition(eyex, eyey);
 	win.draw(circle);
 
-	//rectangle
+	//mouth
 	ConvexShape convex;
 	convex.setPointCount(3);
 	convex.setPoint(0, Vector2f(x + WIDTH_ELEMENT/2, y + HEIGHT_ELEMENT /2));
@@ -316,7 +320,7 @@ void drawPacman(RenderWindow &win) {
 	convex.setPoint(2, Vector2f(x2, y2));
 	convex.setFillColor(COLOR_BG);
 
-	if(pacman.switchOpen())
+	if(pacman.toggleOpen())
 		win.draw(convex);
 }
 
@@ -349,7 +353,7 @@ void drawCherries(RenderWindow &win) {
 	}
 }
 
-void drawFood(RenderWindow &win) {
+void drawFoods(RenderWindow &win) {
 	for(int i = 0; i < foods.size(); i++) {
 		RectangleShape rect;
 		rect.setSize(Vector2f(WIDTH_ELEMENT / 3, HEIGHT_ELEMENT / 3));
@@ -358,7 +362,7 @@ void drawFood(RenderWindow &win) {
 		win.draw(rect);
 	}
 }
-void drawMap(RenderWindow &win) {
+void drawMaps(RenderWindow &win) {
 	for(int i = 0; i < maps.size(); i++) {
 		RectangleShape rect;
 		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT));
@@ -417,6 +421,9 @@ void drawGhosts(RenderWindow &win) {
 		}
 	}
 }
+#pragma endregion
+
+#pragma region Control Game
 
 void controlGame(){
 	controlObject(pacman, false);
@@ -427,17 +434,23 @@ void controlGame(){
 }
 
 void controlObject(Character &cha, bool isGhost) {
+	//get all directions ghost can go
 	vector<Constant::Direction> directions = whereCanGo(cha.getX(), cha.getY());
 	if(isContained(directions, cha.getDirection())) {
+		//remove oposite direction (keep ghost from suddenly reverse its direction
 		if(isContained(directions, opositeOf(cha.getDirection())))
 			directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
 	}
-
+	//random an direction
 	if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
 		cha.setDirection(directions[rand() % directions.size()]);
 	}
+
+	//reduce power of pacman
 	if(!isGhost)
 		pacman.reducePower();
+
+	//move
 	switch(cha.getDirection()) {
 	case Constant::Direction::right:
 		if(isContained(directions, Constant::Direction::right)) {
@@ -460,6 +473,101 @@ void controlObject(Character &cha, bool isGhost) {
 		}
 		break;
 	}
+}
+
+void controlScore(){
+	crashGhost();
+	eatCherry();
+	eatFood();
+}
+
+
+
+void crashGhost(){
+	for(int i = 0; i < ghosts.size(); i++) {
+		if((ceil(ghosts[i].getX()) == ceil(pacman.getX()) && 
+			ceil(ghosts[i].getY()) == ceil(pacman.getY())) || 
+			(floor(ghosts[i].getX()) == floor(pacman.getX()) && 
+			floor(ghosts[i].getY()) == floor(pacman.getY()))){
+				if(pacman.getPower() > 0) {
+					ghosts.erase(ghosts.begin() + i);
+					score += 5;
+					break;
+				} else {
+					reset();
+				}
+		}
+	}
+
+	//win when there is no more ghosts
+	if(ghosts.size() == 0)
+		reset();
+}
+
+void eatCherry(){
+	for(int i = 0; i < cherries.size(); i++) {
+		if(cherries[i].getX() == pacman.round(pacman.getX()) &&
+			cherries[i].getY() == pacman.round(pacman.getY())) {
+				cherries.erase(cherries.begin() + i);
+				pacman.activatePower();
+				score += 5;
+				break;
+		}
+	}
+}
+
+void eatFood(){
+	for(int i = 0; i < foods.size(); i++) {
+		if(foods[i].getX() == pacman.round(pacman.getX()) 
+			&& foods[i].getY() == pacman.round(pacman.getY())) {
+				foods.erase(foods.begin() + i);
+				score++;
+				break;
+		}
+	}
+
+	//win when there is no more food
+	if(foods.size() == 0)
+		reset();
+}
+
+#pragma endregion
+
+#pragma region Utils  
+
+bool isContained(vector<Element> list, Element ele) {
+	for(int i = 0; i < list.size(); i++) {
+		if(list[i].getX() == ele.getX() && list[i].getY() == ele.getY())
+			return true;
+	}
+	return false;
+}
+
+bool isContained(vector<Character> list, Character ele) {
+	for(int i = 0; i < list.size(); i++) {
+		if(list[i].getX() == ele.getX() && list[i].getY() == ele.getY())
+			return true;
+	}
+	return false;
+}
+
+bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
+	if(find(list.begin(), list.end(), ele) != list.end()) 
+		return true;
+	else
+		return false;
+}
+
+void pushMultipleToMap(int x, int y) {
+	pushToMap(x, y);
+	pushToMap(SIZE_GRID - x - 1, y);
+	pushToMap(x, SIZE_GRID - y - 1);
+	pushToMap(SIZE_GRID - x - 1, SIZE_GRID - y - 1);
+}
+
+void pushToMap(int x, int y) {
+	Element block = Element(x, y, COLOR_MAP);
+	maps.push_back(block);
 }
 
 vector<Constant::Direction> whereCanGo(float x, float y) {
@@ -486,6 +594,7 @@ bool isCrashed(float x, float y) {
 	}
 	return false;
 }
+
 Constant::Direction opositeOf(Constant::Direction direction) {
 	switch(direction) {
 	case Constant::Direction::left:
@@ -498,61 +607,6 @@ Constant::Direction opositeOf(Constant::Direction direction) {
 		return Constant::Direction::up;
 	}
 }
-void controlScore(){
-	crashGhost();
-	eatCherry();
-	eatFood();
-}
 
-void reset(){
-	showMenu();
-	clearVectors();
-	generate();
-}
+#pragma endregion
 
-void clearVectors() {
-	maps.clear();
-	foods.clear();
-	cherries.clear();
-	ghosts.clear();
-}
-
-void crashGhost(){
-	for(int i = 0; i < ghosts.size(); i++) {
-		if((ceil(ghosts[i].getX()) == ceil(pacman.getX()) && 
-			ceil(ghosts[i].getY()) == ceil(pacman.getY())) || 
-			(floor(ghosts[i].getX()) == floor(pacman.getX()) && 
-			floor(ghosts[i].getY()) == floor(pacman.getY()))
-			){
-				if(pacman.getPower() > 0) {
-					ghosts.erase(ghosts.begin() + i);
-					score += 5;
-				} else {
-					reset();
-				}
-		}
-	}
-}
-void eatCherry(){
-	for(int i = 0; i < cherries.size(); i++) {
-		if(cherries[i].getX() == pacman.round(pacman.getX()) &&
-			cherries[i].getY() == pacman.round(pacman.getY())) {
-				cherries.erase(cherries.begin() + i);
-				pacman.activatePower();
-				score += 5;
-				break;
-		}
-	}
-}
-void eatFood(){
-	for(int i = 0; i < foods.size(); i++) {
-		if(foods[i].getX() == pacman.round(pacman.getX()) 
-			&& foods[i].getY() == pacman.round(pacman.getY())) {
-				foods.erase(foods.begin() + i);
-				score++;
-				break;
-		}
-	}
-	if(foods.size() == 0)
-		reset();
-}

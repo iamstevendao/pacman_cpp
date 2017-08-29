@@ -9,9 +9,12 @@ private:
 public:
 	Pacman();
 	Pacman(int, int, Color);
-	bool switchOpen();
+	//toggle open and return
+	bool toggleOpen();
 	int getPower();
+	//activate power when eats cherry
 	void activatePower();
+	//reduce power over time
 	void reducePower();
 };
 
