@@ -35,6 +35,8 @@ void eatCherry();
 void eatFood();
 
 //functionality
+void showMenu();
+void clearVectors();
 void initialize();
 void reset();
 void pushToMap(int,int); 

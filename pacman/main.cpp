@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "main.h"
+#include <sstream>
 
 //global elements
 vector<Element> maps;
@@ -14,7 +15,7 @@ int currentChoice;
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
 	RenderWindow window(VideoMode(WIDTH_WINDOW, HEIGHT_WINDOW), "Pacman");
-	initialize();
+	showMenu();
 	generate();
 	Font font;
 	font.loadFromFile("ARCADECLASSIC.TTF");
@@ -34,32 +35,38 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			case Event::KeyPressed: {
 				switch(event.key.code) {
 				case Keyboard::Left:
-					pacman.setDirection(Constant::Direction::left);
-					pacman.setY(pacman.round(pacman.getY()));
+					if(!isMenu) {
+						pacman.setDirection(Constant::Direction::left);
+						pacman.setY(pacman.round(pacman.getY()));
+					}
 					break;
 				case Keyboard::Right:
-					pacman.setDirection(Constant::Direction::right);
-					pacman.setY(pacman.round(pacman.getY()));
+					if(!isMenu) {
+						pacman.setDirection(Constant::Direction::right);
+						pacman.setY(pacman.round(pacman.getY()));
+					}
 					break;
 				case Keyboard::Up:
-					pacman.setDirection(Constant::Direction::up);
-					pacman.setX(pacman.round(pacman.getX()));
-					if(isMenu && currentChoice == 2) {
+					if(!isMenu) {
+						pacman.setDirection(Constant::Direction::up);
+						pacman.setX(pacman.round(pacman.getX()));
+					} else if(isMenu && currentChoice == 2) {
 						currentChoice--;
 					}
 					break;
 				case Keyboard::Down:
-					pacman.setDirection(Constant::Direction::down);
-					pacman.setX(pacman.round(pacman.getX()));
-					if(isMenu && currentChoice == 1) {
+					if(!isMenu) {
+						pacman.setDirection(Constant::Direction::down);
+						pacman.setX(pacman.round(pacman.getX()));
+					}else if(isMenu && currentChoice == 1) {
 						currentChoice++;
 					}
 					break;
 				case Keyboard::Return:
 					if(isMenu) {
-						if(currentChoice == 1)
-							isMenu = false;
-						else 
+						if(currentChoice == 1) {
+							initialize();
+						} else 
 							return 0;
 					}
 					break;
@@ -76,7 +83,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		if(!isMenu)
 			controlGame();
 		window.display();
-		Sleep(80);
+		Sleep(NUMBER_INTERVAL);
 	}
 
 	return 0;
@@ -107,10 +114,14 @@ bool isContained(vector<Constant::Direction> list, Constant::Direction ele) {
 
 }
 void initialize() {
-	isMenu = true;
+	isMenu = false;
 	score = 0;
-
+	srand(time(NULL)); 
 }
+void showMenu() {
+	isMenu = true;
+}
+
 void generate(){
 	generateMap();
 	generateFood();
@@ -206,16 +217,25 @@ void draw(RenderWindow &win, Font &font) {
 
 void drawMenu(RenderWindow &win, int score, Font &font) {
 	RectangleShape rect;
-	rect.setFillColor(Color::Black);
+	rect.setFillColor(COLOR_BG);
 	rect.setPosition(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 4);
 	rect.setSize(Vector2f(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2));
 	win.draw(rect);
 
 	Text text;
 	text.setFont(font);
-	text.setString("PACMAN");
-	text.setCharacterSize(24);
 	text.setColor(Color::White);
+	text.setCharacterSize(40);
+
+	if(score != 0) {
+		ostringstream oss;
+		oss << "SCORE  " << score;
+		text.setString(oss.str());
+		text.setPosition(TEXT_SCORE_X, TEXT_SCORE_Y);
+		win.draw(text);
+	}
+
+	text.setString("PACMAN");
 	text.setPosition(TEXT_PACMAN_X, TEXT_PACMAN_Y);
 	win.draw(text);
 
@@ -226,26 +246,23 @@ void drawMenu(RenderWindow &win, int score, Font &font) {
 	text.setString("EXIT");
 	text.setPosition(TEXT_EXIT_X, TEXT_EXIT_Y);
 	win.draw(text);
-	
+
 	ConvexShape convex;
 	convex.setPointCount(3);
 	convex.setFillColor(Color::White);
 
-	if(currentChoice == 1 ) {
-	convex.setPoint(0, Vector2f(TEXT_PLAY_X - 20, TEXT_PLAY_Y + 5));
-	convex.setPoint(1, Vector2f(TEXT_PLAY_X - 10, TEXT_PLAY_Y + 10));
-	convex.setPoint(2, Vector2f(TEXT_PLAY_X - 20, TEXT_PLAY_Y + 15));
-	} else {
-	convex.setPoint(0, Vector2f(TEXT_EXIT_X - 20, TEXT_EXIT_Y + 5));
-	convex.setPoint(1, Vector2f(TEXT_EXIT_X - 10, TEXT_EXIT_Y + 10));
-	convex.setPoint(2, Vector2f(TEXT_EXIT_X - 20, TEXT_EXIT_Y + 15));
-	}
+	int x = currentChoice == 1 ? TEXT_PLAY_X : TEXT_EXIT_X;
+	int y = currentChoice == 1 ? TEXT_PLAY_Y : TEXT_EXIT_Y;
+	convex.setPoint(0, Vector2f(x - 20, y + 20));
+	convex.setPoint(1, Vector2f(x - 10, y + 25));
+	convex.setPoint(2, Vector2f(x - 20, y + 30));
 	win.draw(convex);
-	if(score != 0) {
-		text.setString("SCORE: ");
-		text.setPosition(WIDTH_WINDOW/4 + 100, HEIGHT_WINDOW/4 + 150);
-		win.draw(text);
-	}
+
+	//credit
+	text.setCharacterSize(30);
+	text.setString("BY  STEVEN DAO  6326");
+	text.setPosition(TEXT_CREDIT_X, TEXT_CREDIT_Y);
+	win.draw(text);
 }
 
 void drawPacman(RenderWindow &win) {
@@ -281,10 +298,7 @@ void drawPacman(RenderWindow &win) {
 	//big circle
 	CircleShape circle;
 	circle.setRadius(WIDTH_ELEMENT/2);
-	if(pacman.getPower() <= 0)
-		circle.setFillColor(pacman.getColor());
-	else
-		circle.setFillColor(COLOR_POWER);
+	circle.setFillColor(pacman.getColor());
 	circle.setPosition(x, y);
 	win.draw(circle);
 
@@ -300,7 +314,7 @@ void drawPacman(RenderWindow &win) {
 	convex.setPoint(0, Vector2f(x + WIDTH_ELEMENT/2, y + HEIGHT_ELEMENT /2));
 	convex.setPoint(1, Vector2f(x1, y1));
 	convex.setPoint(2, Vector2f(x2, y2));
-	convex.setFillColor(Color::Black);
+	convex.setFillColor(COLOR_BG);
 
 	if(pacman.switchOpen())
 		win.draw(convex);
@@ -359,15 +373,22 @@ void drawGhosts(RenderWindow &win) {
 		int x = ghosts[i].getX() * WIDTH_ELEMENT;
 		int y = ghosts[i].getY() * HEIGHT_ELEMENT;
 		//big circle
+		Color color;
+		int pow = pacman.getPower() / 80;
+		if(pow < 0 || pow == 1 || pow == 5 || pow == 9 || pow == 13) 
+			color = ghosts[i].getColor();
+		else 
+			color = Color::White;
+
 		CircleShape circle;
 		circle.setRadius(WIDTH_ELEMENT/2);
-		circle.setFillColor(ghosts[i].getColor());
+		circle.setFillColor(color);
 		circle.setPosition(x, y);
 		win.draw(circle);
 
 		//rectangle
 		RectangleShape rect;
-		rect.setFillColor(ghosts[i].getColor());
+		rect.setFillColor(color);
 		rect.setPosition(x, y + HEIGHT_ELEMENT / 2);
 		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 2));
 		win.draw(rect);
@@ -380,14 +401,15 @@ void drawGhosts(RenderWindow &win) {
 
 		circle.setPosition(x + WIDTH_ELEMENT * 5/8, y + HEIGHT_ELEMENT *3/8);
 		win.draw(circle);
+
 		//clear foot
-		rect.setFillColor(Color::Black);
+		rect.setFillColor(COLOR_BG);
 		rect.setPosition(x, y + HEIGHT_ELEMENT * 7/ 8);
 		rect.setSize(Vector2f(WIDTH_ELEMENT, HEIGHT_ELEMENT / 8));
 		win.draw(rect);
 
 		//4 circle
-		circle.setFillColor(ghosts[i].getColor());
+		circle.setFillColor(color);
 		for(int j = -4; j <= 2; j +=2) {
 			circle.setRadius(WIDTH_ELEMENT/8);
 			circle.setPosition(x + WIDTH_ELEMENT / 2 + j * WIDTH_ELEMENT / 8, y + HEIGHT_ELEMENT * 3/4);
@@ -483,8 +505,16 @@ void controlScore(){
 }
 
 void reset(){
-	isMenu = true;
+	showMenu();
+	clearVectors();
 	generate();
+}
+
+void clearVectors() {
+	maps.clear();
+	foods.clear();
+	cherries.clear();
+	ghosts.clear();
 }
 
 void crashGhost(){
@@ -519,8 +549,10 @@ void eatFood(){
 		if(foods[i].getX() == pacman.round(pacman.getX()) 
 			&& foods[i].getY() == pacman.round(pacman.getY())) {
 				foods.erase(foods.begin() + i);
-				score += 1;
+				score++;
 				break;
 		}
 	}
+	if(foods.size() == 0)
+		reset();
 }
