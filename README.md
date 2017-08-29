@@ -28,7 +28,7 @@
   ```
 
 ## Main Classes
-![Class Diagram](https://lh3.googleusercontent.com/UFW27FqWCk_UCTNnlxqrCZ4ZKLWyJ94yM95QhYXiVIzCFVmjcGSopc1KFRoZPOesyd4Ga36CFCCeqdQ=w1792-h1332-rw)
+![Class Diagram](https://lh4.googleusercontent.com/dLayjInxWiUs231kspbmykViYE5Z9-9EUcqLtSdm8j-JZa-tuJbkTeaIx2sV1uIwI_i6crMeW_fZZRE=w1792-h1332-rw)
 
 
 
