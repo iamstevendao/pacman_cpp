@@ -16,7 +16,6 @@ public:
 	Constant::Direction getDirection();
 	void setDirection(Constant::Direction);
 	float round(float);
-	Color getColor();
 	void goLeft();
 	void goRight();
 	void goUp();

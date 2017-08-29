@@ -7,8 +7,6 @@ class Element {
 protected:
 	float _x;
 	float _y;
-	int _width;
-	int _height;
 	Color _color;
 public:
 	Element();
@@ -17,8 +15,6 @@ public:
 	void setY(float);
 	float getX();
 	float getY();
-	int getWidth();
-	int getHeight();
 	Color getColor();
 };
 

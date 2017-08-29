@@ -4,10 +4,6 @@ Character::Character() {}
 Character::Character(float x, float y, Color color) : Element(x, y, color) {}
 
 #pragma region Getter Setter
-Color Character::getColor(){
-	return Element::getColor();
-}
-
 Constant::Direction Character::getDirection(){
 	return _direction;
 }
