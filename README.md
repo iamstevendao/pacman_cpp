@@ -36,4 +36,4 @@
 
 
 ## License
-[SFML Libraries](https://www.sfml-dev.org/license.php)
+This project is distributed under [![License](https://img.shields.io/badge/sfml-license-brightgreen.svg)](https://www.sfml-dev.org/license.php)
