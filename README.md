@@ -1,5 +1,5 @@
 # Pacman game by C++ with SFML library
-> My C++ Assignment in the second term of  IT course at AIT  
+> My C++ Assignment in the second term of  IT course at AIT, check out my Javascript version: [![GitHub stars](https://img.shields.io/badge/iamstevendao-pacman-blue.svg)](https://github.com/iamstevendao/pacman)  
 
 [![Documentation](https://img.shields.io/badge/sfml-v2.3.2-red.svg)](https://www.sfml-dev.org/documentation/2.3.2/)
 [![License](https://img.shields.io/badge/sfml-license-brightgreen.svg)](https://www.sfml-dev.org/license.php)
