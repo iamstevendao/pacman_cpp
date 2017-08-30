@@ -1,8 +1,8 @@
 # Pacman game by C++ with SFML library
 > My C++ Assignment in the second term of  IT course at AIT  
 
-![Documentation](https://img.shields.io/badge/sfml-documentation-red.svg)
-![License](https://img.shields.io/badge/sfml-license-brightgreen.svg)
+[![Documentation](https://img.shields.io/badge/sfml-v2.3.2-red.svg)](https://www.sfml-dev.org/documentation/2.3.2/)
+[![License](https://img.shields.io/badge/sfml-license-brightgreen.svg)](https://www.sfml-dev.org/license.php)
 
 ## Table of Contents
 - **[Requirement](#requirement)**  
