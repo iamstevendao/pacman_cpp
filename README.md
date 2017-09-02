@@ -13,7 +13,7 @@
 
 ## Requirement
 - C++ 10 (Visual C++ 2010)
-- With C++ 10+ (Need to rebuild with a newer version of [SFML](https://www.sfml-dev.org/))
+- With C++ 10+ (Need to retarget and update project by [Visual Studio](https://www.visualstudio.com/))
 
 ## In-Game Screenshots
 ![screenshot](screenshot/grid.jpg)
