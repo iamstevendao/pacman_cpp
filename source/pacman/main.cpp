@@ -195,8 +195,10 @@ void generateGhost(){
 		int color = rand() % NUMBER_GHOST_COLOR;
 
 		Character ghost = Character(x, y, Constant::GhostColors(color));
-		if(!isContained(ghosts, ghost))
+		if(!isContained(ghosts, ghost)){
+			ghost.setTarget(generateTarget());
 			ghosts.push_back(ghost);
+		}
 		else 
 			i--;
 	}
@@ -205,6 +207,13 @@ void generatePacman(){
 	pacman = Pacman(1,1, COLOR_PACMAN);
 	pacman.setDirection(Constant::Direction::right);
 }
+
+int generateTarget(){
+	if(cherries.size() > 0) 
+		return rand() % NUMBER_GHOST > NUMBER_GHOST / 4 ? - 1 : rand() % cherries.size();
+	return -1;
+}
+
 #pragma endregion 
 
 #pragma region Draw Game
@@ -427,27 +436,137 @@ void drawGhosts(RenderWindow &win) {
 
 void controlGame(){
 	controlObject(pacman, false);
+	controlPath();
 	for(int i = 0; i < ghosts.size(); i++) {
 		controlObject(ghosts[i], true);
 	}
 	controlScore();
 }
 
+void controlPath() {
+	for(int i = 0; i < ghosts.size(); i++) {
+		ghosts[i].updateHead();
+		Point destination;
+		Path* departure = ghosts[i].getPath(); 
+		if(ghosts[i].getTarget() == -1) {
+			destination = Point(pacman.round(pacman.getX()), pacman.round(pacman.getY()));
+		} else {
+			if(ghosts[i].getTarget() >= cherries.size() || !reachCherry(departure)) {
+				ghosts[i].setTarget(rand() % cherries.size());
+			}
+			destination = Point(cherries[ghosts[i].getTarget()].getX(), cherries[ghosts[i].getTarget()].getY());
+		}
+		ghosts[i].setPath(findPath(i, departure, destination));
+	}
+}
+
+bool reachCherry(Path* ghost) {
+	for(int i = 0; i < cherries.size(); i++) {
+		if(ghost->point.x == cherries[i].getX() && ghost->point.y == cherries[i].getY()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+Path* findPath(int ind, Path* departure, Point arrival) {
+	if(arrival.x == departure->point.x && arrival.y == departure->point.y) {
+		ghosts[ind].setPath(NULL);
+	}
+	vector<Path*> queue;
+	queue.push_back(departure);
+	int index = 0;
+	Path *result = NULL;
+	while(!result) {
+		vector<Point> adj = getAdjacences(ind, queue, queue[index]->point);
+		for(int i = 0; i < adj.size(); i++) {
+			Path *path = new Path();
+			path->point = adj[i];
+			path->next = queue[index];
+			queue.push_back(path);
+			if(adj[i].x == departure->point.x && adj[i].y == departure->point.y)
+				result = path;
+		}
+		index++;
+	}
+	return result;
+}
+
+vector<Point> getAdjacences(int ind, vector<Path*> queue, Point point) {
+	vector<Point> adj;
+	adj.push_back(Point(point.x, point.y - 1));
+	adj.push_back(Point(point.x, point.y + 1));
+	adj.push_back(Point(point.x - 1, point.y));
+	adj.push_back(Point(point.x + 1, point.y));
+	adj = shuffle(ind, adj);
+	for(int i = 0; i < adj.size(); i++) {
+		if(adj[i].x < 1 || adj[i].y < 1 || 
+			adj[i].x > SIZE_GRID || adj[i].y > SIZE_GRID ||
+			isInMap(point) || isInQueue(queue, point)) {
+				adj.erase(adj.begin() + i);
+				i--;
+		}
+	}
+	return adj;
+}
+
+bool isInMap(Point point) {
+	for(int i = 0; i < maps.size(); i++) {
+		if(point.x == maps[i].getX() && point.y == maps[i].getY()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool isInQueue(vector<Path*> queue, Point point) {
+	for(int i = 0; i < queue.size(); i++) {
+		if(point.x == queue[i]->point.x && point.y == queue[i]->point.x)
+			return true;
+	}
+	return false;
+}
+
+vector<Point> shuffle(int ind, vector<Point> points) {
+	vector<Point> ret;
+	int index = ind % 4;
+	for(int i = 0; i < 4; i++) {
+		ret.push_back(points[(index + i) % 4]);
+	}
+	return ret;
+}
+
 void controlObject(Character &cha, bool isGhost) {
 	//get all directions ghost can go
 	vector<Constant::Direction> directions = whereCanGo(cha.getX(), cha.getY());
-	if(isContained(directions, cha.getDirection())) {
-		//remove oposite direction (keep ghost from suddenly reverse its direction
-		if(isContained(directions, opositeOf(cha.getDirection())))
-			directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
-	}
-	//random an direction
-	if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
-		cha.setDirection(directions[rand() % directions.size()]);
-	}
+	if(isGhost) {
 
+		//generate a new target after an amount of time
+		if(pacman.getPower() % (NUMBER_INTERVAL * NUMBER_POWER * 2) == 0) {
+			cha.setTarget(generateTarget());
+		}
+
+		//when pacman activates power, go backwards
+		if (pacman.getPower() >= NUMBER_INTERVAL * (NUMBER_POWER - 1)) {
+			cha.setDirection(opositeOf(cha.getDirection()));
+		} else {
+			if(isContained(directions, cha.getDirection())) {
+				//remove oposite direction (keep ghost from suddenly reverse its direction
+				if(isContained(directions, opositeOf(cha.getDirection())))
+					directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
+			}
+			//random an direction
+			if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
+				if(pacman.getPower() > 0)
+					//if pacman is having its power, random direction
+					cha.setDirection(directions[rand() % directions.size()]);
+				else
+					cha.followPath();
+			}
+		}
+	}
 	//reduce power of pacman
-	if(!isGhost)
+	else
 		pacman.reducePower();
 
 	//move
@@ -480,8 +599,6 @@ void controlScore(){
 	eatCherry();
 	eatFood();
 }
-
-
 
 void crashGhost(){
 	for(int i = 0; i < ghosts.size(); i++) {
