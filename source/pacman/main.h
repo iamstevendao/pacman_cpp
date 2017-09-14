@@ -54,7 +54,7 @@ Constant::Direction opositeOf(Constant::Direction); //return the oposite directi
 vector<Constant::Direction> whereCanGo(float,float); //check all the directions that a ghost can go into
 
 //new
-Path* findPath(int, Path, Point);
+Path* findPath(int, Path *, Point);
 vector<Point> getAdjacences(int, vector<Path*>, Point);
 vector<Point> shuffle(int, vector<Point>);
 bool reachCherry(Path*);

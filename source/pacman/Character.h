@@ -28,6 +28,7 @@ private:
 public:
 	Character();
 	Character(float, float, Color);
+	Character(float, float, Color, int);
 	Constant::Direction getDirection();
 	void setDirection(Constant::Direction);
 	float round(float);

@@ -3,7 +3,9 @@
 using namespace std;
 
 Character::Character() {}
-Character::Character(float x, float y, Color color) : Element(x, y, color) {
+Character::Character(float x, float y, Color color) : Element(x,y, color){}
+Character::Character(float x, float y, Color color, int id) : Element(x, y, color) {
+	_id = id;
 	resetPath();
 }
 
@@ -84,7 +86,7 @@ void Character::resetPath() {
 	_head->next = 0;
 }
 void Character::setPath(Path *head){
-	head->next = head;
+	_head->next = head;
 }
 
 Path* Character::getPath(){

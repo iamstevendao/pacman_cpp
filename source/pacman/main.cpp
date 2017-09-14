@@ -194,7 +194,7 @@ void generateGhost(){
 		int y = rand() % Constant::GhostArea::h + Constant::GhostArea::y;
 		int color = rand() % NUMBER_GHOST_COLOR;
 
-		Character ghost = Character(x, y, Constant::GhostColors(color));
+		Character ghost = Character(x, y, Constant::GhostColors(color), i);
 		if(!isContained(ghosts, ghost)){
 			ghost.setTarget(generateTarget());
 			ghosts.push_back(ghost);
@@ -226,6 +226,7 @@ void draw(RenderWindow &win, Font &font) {
 	if(isMenu) {
 		drawMenu(win, score, font);
 	}
+	//drawPath(win);
 }
 
 void drawMenu(RenderWindow &win, int score, Font &font) {
@@ -381,6 +382,22 @@ void drawMaps(RenderWindow &win) {
 	}
 }
 
+void drawPath(RenderWindow &win) {
+	if(pacman.getPower() < 0) {
+		for(int i = 0; i < ghosts.size(); i++) {
+			Path* current = ghosts[i].getPath();
+			while(current->next) {
+				current = current->next;
+				RectangleShape rect;
+				rect.setSize(Vector2f(WIDTH_ELEMENT / 3, HEIGHT_ELEMENT / 3));
+				rect.setPosition(current->point.x * WIDTH_ELEMENT + WIDTH_ELEMENT/3, current->point.y* HEIGHT_ELEMENT + HEIGHT_ELEMENT/3);
+				rect.setFillColor(ghosts[i].getColor());
+				win.draw(rect);
+			}
+		}
+	}
+}
+
 void drawGhosts(RenderWindow &win) {
 	for(int i = 0; i < ghosts.size(); i++) {
 		int x = ghosts[i].getX() * WIDTH_ELEMENT;
@@ -470,8 +487,9 @@ bool reachCherry(Path* ghost) {
 }
 
 Path* findPath(int ind, Path* departure, Point arrival) {
-	if(arrival.x == departure->point.x && arrival.y == departure->point.y) {
-		ghosts[ind].setPath(NULL);
+	Point dep = Point(floor(departure->point.x), floor(departure->point.y));
+	if(arrival.x == dep.x && arrival.y == dep.y) {
+		return NULL;
 	}
 	vector<Path*> queue;
 	queue.push_back(departure);
@@ -484,12 +502,21 @@ Path* findPath(int ind, Path* departure, Point arrival) {
 			path->point = adj[i];
 			path->next = queue[index];
 			queue.push_back(path);
-			if(adj[i].x == departure->point.x && adj[i].y == departure->point.y)
+			if(adj[i].x == arrival.x && adj[i].y == arrival.y)
 				result = path;
 		}
 		index++;
 	}
-	return result;
+
+	//reverse the linked list
+	Path * curr = result, *next = NULL, *prev = NULL;
+	while(curr) {
+		next = curr->next;
+		curr->next = prev;
+		prev = curr;
+		curr = next;
+	}
+	return prev->next;
 }
 
 vector<Point> getAdjacences(int ind, vector<Path*> queue, Point point) {
@@ -502,7 +529,7 @@ vector<Point> getAdjacences(int ind, vector<Path*> queue, Point point) {
 	for(int i = 0; i < adj.size(); i++) {
 		if(adj[i].x < 1 || adj[i].y < 1 || 
 			adj[i].x > SIZE_GRID || adj[i].y > SIZE_GRID ||
-			isInMap(point) || isInQueue(queue, point)) {
+			isInMap(adj[i]) || isInQueue(queue, adj[i])) {
 				adj.erase(adj.begin() + i);
 				i--;
 		}
@@ -521,7 +548,7 @@ bool isInMap(Point point) {
 
 bool isInQueue(vector<Path*> queue, Point point) {
 	for(int i = 0; i < queue.size(); i++) {
-		if(point.x == queue[i]->point.x && point.y == queue[i]->point.x)
+		if(point.x == queue[i]->point.x && point.y == queue[i]->point.y)
 			return true;
 	}
 	return false;
@@ -550,17 +577,18 @@ void controlObject(Character &cha, bool isGhost) {
 		if (pacman.getPower() >= NUMBER_INTERVAL * (NUMBER_POWER - 1)) {
 			cha.setDirection(opositeOf(cha.getDirection()));
 		} else {
+
 			if(isContained(directions, cha.getDirection())) {
 				//remove oposite direction (keep ghost from suddenly reverse its direction
 				if(isContained(directions, opositeOf(cha.getDirection())))
 					directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
 			}
-			//random an direction
-			if(isGhost && ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
+
+			if(ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
 				if(pacman.getPower() > 0)
 					//if pacman is having its power, random direction
 					cha.setDirection(directions[rand() % directions.size()]);
-				else
+				else //otherwise follow up what it is up to
 					cha.followPath();
 			}
 		}
