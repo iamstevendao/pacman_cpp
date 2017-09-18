@@ -46,19 +46,19 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				case Keyboard::Left:
 					if(!isMenu) {
 						pacman.setDirection(Constant::Direction::left);
-						pacman.setY(pacman.round(pacman.getY()));
+						pacman.setY(round(pacman.getY()));
 					}
 					break;
 				case Keyboard::Right:
 					if(!isMenu) {
 						pacman.setDirection(Constant::Direction::right);
-						pacman.setY(pacman.round(pacman.getY()));
+						pacman.setY(round(pacman.getY()));
 					}
 					break;
 				case Keyboard::Up:
 					if(!isMenu) {
 						pacman.setDirection(Constant::Direction::up);
-						pacman.setX(pacman.round(pacman.getX()));
+						pacman.setX(round(pacman.getX()));
 					} else if(isMenu && currentChoice == 2) {
 						currentChoice--;
 					}
@@ -66,7 +66,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				case Keyboard::Down:
 					if(!isMenu) {
 						pacman.setDirection(Constant::Direction::down);
-						pacman.setX(pacman.round(pacman.getX()));
+						pacman.setX(round(pacman.getX()));
 					}else if(isMenu && currentChoice == 1) {
 						currentChoice++;
 					}
@@ -136,9 +136,9 @@ void clearVectors() {
 void generate(){
 	generateMap();
 	generateFood();
-	generateGhost();
 	generatePacman();
 	generateCherries();
+	generateGhost();
 }
 
 void generateMap() {
@@ -209,9 +209,10 @@ void generatePacman(){
 }
 
 int generateTarget(){
-	if(cherries.size() > 0) 
-		return rand() % NUMBER_GHOST > NUMBER_GHOST / 4 ? - 1 : rand() % cherries.size();
-	return -1;
+	if(cherries.size() > 0) //if there are still cherries in map
+		//generate target, each ghost has 33% chance to chase the a cherry;
+		return rand() % NUMBER_GHOST > NUMBER_GHOST / 3 ? - 1 : rand() % cherries.size();
+	return -1; //set target to be Pacman
 }
 
 #pragma endregion 
@@ -453,39 +454,39 @@ void drawGhosts(RenderWindow &win) {
 
 void controlGame(){
 	controlObject(pacman, false);
-	controlPath();
 	for(int i = 0; i < ghosts.size(); i++) {
+		controlPath(i);
 		controlObject(ghosts[i], true);
 	}
 	controlScore();
 }
 
-void controlPath() {
-	for(int i = 0; i < ghosts.size(); i++) {
-		if(ceil(ghosts[i].getX()) == floor(ghosts[i].getX()) && ceil(ghosts[i].getY()) == floor(ghosts[i].getY())) {
-			ghosts[i].updateHead();
-			Point destination;
-			Path* departure = ghosts[i].getPath(); 
-			if(ghosts[i].getTarget() == -1) {
-				destination = Point(pacman.round(pacman.getX()), pacman.round(pacman.getY()));
-			} else {
-				if(ghosts[i].getTarget() >= cherries.size() || !reachCherry(departure)) {
-					ghosts[i].setTarget(rand() % cherries.size());
-				}
-				destination = Point(cherries[ghosts[i].getTarget()].getX(), cherries[ghosts[i].getTarget()].getY());
+void controlPath(int i) {
+	//if the coordinates of the ghost is an integer
+	if(isInteger(ghosts[i].getX()) && isInteger(ghosts[i].getY())) {
+		//update current position of the ghost
+		ghosts[i].updateHead();
+		Point destination;
+		Path* departure = ghosts[i].getPath();
+		//if it is chasing pacman
+		if(ghosts[i].getTarget() == -1) {
+			destination = round(Point(pacman.getX(), pacman.getY()));
+		} else {
+
+			if(ghosts[i].getTarget() >= cherries.size() || 
+				reachTarget(round(departure->point), ghosts[i].getTarget())) 
+			{
+				ghosts[i].setTarget(rand() % cherries.size());//generate new target
 			}
-			ghosts[i].setPath(findPath(i, departure, destination));
+			Element target = cherries[ghosts[i].getTarget()];
+			destination = Point(target.getX(), target.getY());
 		}
+		ghosts[i].setPath(findPath(i, departure, destination));
 	}
 }
 
-bool reachCherry(Path* ghost) {
-	for(int i = 0; i < cherries.size(); i++) {
-		if(ghost->point.x == cherries[i].getX() && ghost->point.y == cherries[i].getY()) {
-			return true;
-		}
-	}
-	return false;
+bool reachTarget(Point ghost, int target) {
+	return ghost.x == cherries[target].getX() && ghost.y == cherries[target].getY();
 }
 
 Path* findPath(int ind, Path* departure, Point arrival) {
@@ -501,6 +502,8 @@ Path* findPath(int ind, Path* departure, Point arrival) {
 	queue.push_back(dep);
 	int index = 0;
 	Path *result = NULL;
+
+	//keep searching for the path
 	while(!result) {
 		vector<Point> adj = getAdjacences(ind, queue, queue[index]->point);
 		for(int i = 0; i < adj.size(); i++) {
@@ -585,12 +588,12 @@ void controlObject(Character &cha, bool isGhost) {
 		} else {
 
 			if(isContained(directions, cha.getDirection())) {
-				//remove oposite direction (keep ghost from suddenly reverse its direction
+				//remove oposite direction (keep ghost from suddenly reverse its direction)
 				if(isContained(directions, opositeOf(cha.getDirection())))
 					directions.erase(remove(directions.begin(), directions.end(), opositeOf(cha.getDirection())), directions.end());
 			}
 
-			if(ceil(cha.getX()) == floor(cha.getX()) && ceil(cha.getY()) == floor(cha.getY())) {
+			if(isInteger(cha.getX()) && isInteger(cha.getY())) {
 				if(pacman.getPower() > 0)
 					//if pacman is having its power, random direction
 					cha.setDirection(directions[rand() % directions.size()]);
@@ -657,8 +660,8 @@ void crashGhost(){
 
 void eatCherry(){
 	for(int i = 0; i < cherries.size(); i++) {
-		if(cherries[i].getX() == pacman.round(pacman.getX()) &&
-			cherries[i].getY() == pacman.round(pacman.getY())) {
+		if(cherries[i].getX() == round(pacman.getX()) && 
+			cherries[i].getY() == round(pacman.getY())) {
 				cherries.erase(cherries.begin() + i);
 				pacman.activatePower();
 				score += 5;
@@ -669,8 +672,8 @@ void eatCherry(){
 
 void eatFood(){
 	for(int i = 0; i < foods.size(); i++) {
-		if(foods[i].getX() == pacman.round(pacman.getX()) 
-			&& foods[i].getY() == pacman.round(pacman.getY())) {
+		if(foods[i].getX() == round(pacman.getX())
+			&& foods[i].getY() == round(pacman.getY())) {
 				foods.erase(foods.begin() + i);
 				score++;
 				break;
@@ -692,6 +695,10 @@ bool isContained(vector<Element> list, Element ele) {
 			return true;
 	}
 	return false;
+}
+
+bool isInteger(float fl) {
+	return ceil(fl) == floor(fl);
 }
 
 bool isContained(vector<Character> list, Character ele) {
@@ -757,6 +764,7 @@ Constant::Direction opositeOf(Constant::Direction direction) {
 	case Constant::Direction::down:
 		return Constant::Direction::up;
 	}
+	return Constant::Direction::right;
 }
 
 int round(float a) {

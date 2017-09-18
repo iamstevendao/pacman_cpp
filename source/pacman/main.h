@@ -42,7 +42,7 @@ void controlScore();
 void crashGhost();
 void eatCherry();
 void eatFood();
-void controlPath();
+void controlPath(int);
 
 //functionality
 void pushToMap(int,int); 
@@ -58,9 +58,10 @@ vector<Constant::Direction> whereCanGo(float,float); //check all the directions 
 Path* findPath(int, Path *, Point);
 vector<Point> getAdjacences(int, vector<Path*>, Point);
 vector<Point> shuffle(int, vector<Point>);
-bool reachCherry(Path*);
+bool reachTarget(Point, int);
 bool isInQueue(vector<Path*>, Point);
 bool isInMap(Point);
+bool isInteger(float);
 void setPath();
 int round(float);
 Point round(Point);
