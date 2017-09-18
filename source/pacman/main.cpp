@@ -226,7 +226,7 @@ void draw(RenderWindow &win, Font &font) {
 	if(isMenu) {
 		drawMenu(win, score, font);
 	}
-	//drawPath(win);
+	drawPath(win);
 }
 
 void drawMenu(RenderWindow &win, int score, Font &font) {
@@ -462,18 +462,20 @@ void controlGame(){
 
 void controlPath() {
 	for(int i = 0; i < ghosts.size(); i++) {
-		ghosts[i].updateHead();
-		Point destination;
-		Path* departure = ghosts[i].getPath(); 
-		if(ghosts[i].getTarget() == -1) {
-			destination = Point(pacman.round(pacman.getX()), pacman.round(pacman.getY()));
-		} else {
-			if(ghosts[i].getTarget() >= cherries.size() || !reachCherry(departure)) {
-				ghosts[i].setTarget(rand() % cherries.size());
+		if(ceil(ghosts[i].getX()) == floor(ghosts[i].getX()) && ceil(ghosts[i].getY()) == floor(ghosts[i].getY())) {
+			ghosts[i].updateHead();
+			Point destination;
+			Path* departure = ghosts[i].getPath(); 
+			if(ghosts[i].getTarget() == -1) {
+				destination = Point(pacman.round(pacman.getX()), pacman.round(pacman.getY()));
+			} else {
+				if(ghosts[i].getTarget() >= cherries.size() || !reachCherry(departure)) {
+					ghosts[i].setTarget(rand() % cherries.size());
+				}
+				destination = Point(cherries[ghosts[i].getTarget()].getX(), cherries[ghosts[i].getTarget()].getY());
 			}
-			destination = Point(cherries[ghosts[i].getTarget()].getX(), cherries[ghosts[i].getTarget()].getY());
+			ghosts[i].setPath(findPath(i, departure, destination));
 		}
-		ghosts[i].setPath(findPath(i, departure, destination));
 	}
 }
 
@@ -487,12 +489,16 @@ bool reachCherry(Path* ghost) {
 }
 
 Path* findPath(int ind, Path* departure, Point arrival) {
-	Point dep = Point(floor(departure->point.x), floor(departure->point.y));
-	if(arrival.x == dep.x && arrival.y == dep.y) {
+	Point depart = round(departure->point);
+	Point arr = round(arrival);
+	if(arr.x == depart.x && arr.y == depart.y) {
 		return NULL;
 	}
 	vector<Path*> queue;
-	queue.push_back(departure);
+	Path* dep = new Path();
+	dep->point = depart;
+	dep->next = NULL;
+	queue.push_back(dep);
 	int index = 0;
 	Path *result = NULL;
 	while(!result) {
@@ -502,7 +508,7 @@ Path* findPath(int ind, Path* departure, Point arrival) {
 			path->point = adj[i];
 			path->next = queue[index];
 			queue.push_back(path);
-			if(adj[i].x == arrival.x && adj[i].y == arrival.y)
+			if(adj[i].x == arr.x && adj[i].y == arr.y)
 				result = path;
 		}
 		index++;
@@ -528,7 +534,7 @@ vector<Point> getAdjacences(int ind, vector<Path*> queue, Point point) {
 	adj = shuffle(ind, adj);
 	for(int i = 0; i < adj.size(); i++) {
 		if(adj[i].x < 1 || adj[i].y < 1 || 
-			adj[i].x > SIZE_GRID || adj[i].y > SIZE_GRID ||
+			adj[i].x >= SIZE_GRID || adj[i].y >= SIZE_GRID ||
 			isInMap(adj[i]) || isInQueue(queue, adj[i])) {
 				adj.erase(adj.begin() + i);
 				i--;
@@ -753,5 +759,13 @@ Constant::Direction opositeOf(Constant::Direction direction) {
 	}
 }
 
+int round(float a) {
+	if (a >= floor(a)+0.5) return ceil(a);
+	return floor(a);
+}
+
+Point round(Point point) {
+	return Point(round(point.x), round(point.y));
+}
 #pragma endregion
 

@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace sf;
@@ -61,3 +62,5 @@ bool reachCherry(Path*);
 bool isInQueue(vector<Path*>, Point);
 bool isInMap(Point);
 void setPath();
+int round(float);
+Point round(Point);
